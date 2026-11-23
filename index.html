@@ -14,11 +14,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* VOICE  calme et net : un outil qu'on manie d'une main pendant le cours
-   IDEA   le plan de salle qu'on griffonne au tableau : bande vert tableau, tables comme des pupitres
+   IDEA   la salle vue d'en haut : tables en bois clair posées sur le sol, tableau vert
    PICTURE le plan lui-même, grand, juste sous la palette d'observables
-   COLOUR/TYPE blanc craie, vert tableau #1d3b34, jaune craie en accent ; Atkinson Hyperlegible, lisible à bout de bras
-   LAYOUT bandeau collant, palette qui défile, plan pleine largeur, réglages en une colonne calme */
-:root{color-scheme:light dark;--bg:light-dark(#f7f6f1,#111614);--ink:light-dark(#18201d,#e8ede9);--mute:light-dark(#56615a,#9aa6a0);--board:#1d3b34;--chalk:#f2c94c;--seat:light-dark(#ffffff,#1b2320);--line:light-dark(#d6d5cb,#2f3a35);--pos:#2b8a3e;--neg:#d9480f;--card:light-dark(#ffffff,#18201d)}
+   COLOUR/TYPE blanc craie, vert tableau #1d3b34, bois clair, jaune craie en accent ; Atkinson Hyperlegible
+   LAYOUT bandeau collant, barres d'action en ligne, plan pleine largeur, réglages en une colonne */
+:root{color-scheme:light dark;--bg:light-dark(#f7f6f1,#111614);--ink:light-dark(#18201d,#e8ede9);--mute:light-dark(#56615a,#9aa6a0);--board:#1d3b34;--chalk:#f2c94c;--seat:light-dark(#ffffff,#1b2320);--line:light-dark(#d6d5cb,#33403a);--pos:#2b8a3e;--neg:#d9480f;--card:light-dark(#ffffff,#18201d);--wood:light-dark(#e6dac2,#40382c);--woodline:light-dark(#b9a586,#6a5d49);--floor:light-dark(#efeee6,#151c19)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'Atkinson Hyperlegible',system-ui,sans-serif;overflow-x:clip}
@@ -35,7 +35,8 @@ h2{font-size:20px;line-height:1.2;margin:28px 0 10px}
 .warn{background:#fff3bf;color:#4d3a00;border-radius:8px;padding:10px 14px;margin-bottom:12px}
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 .status{margin-right:auto;color:var(--mute)}.status b{color:var(--ink)}
-.btn{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center}
+.lbl{color:var(--mute);font-size:15px}
+.btn{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .btn.pri{background:var(--board);color:#fff;border-color:var(--board)}
 .btn.on{outline:3px solid var(--chalk);outline-offset:-1px;font-weight:700}
 .btn:disabled{opacity:.45;cursor:default}
@@ -46,27 +47,42 @@ h2{font-size:20px;line-height:1.2;margin:28px 0 10px}
 .tool .lt{display:grid;place-items:center;min-width:38px;height:38px;padding:0 4px;border-radius:8px;background:var(--c,#666);color:#fff;font-size:17px}
 .tool.on{border-color:var(--c,var(--ink));box-shadow:0 0 0 3px color-mix(in srgb,var(--c,var(--ink)) 35%,transparent)}
 .erase .lt{background:var(--mute)}
-.room{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
-.board{background:var(--board);color:#e9efe9;text-align:center;border-radius:6px;padding:5px;font-size:14px;margin:0 15% 14px}
-.grid{display:grid;gap:8px}
-.seat{min-height:70px;border:1.5px solid var(--line);background:var(--seat);border-radius:10px;padding:6px;text-align:left;vertical-align:top;cursor:pointer;overflow:hidden;font-size:15px;font-weight:700;line-height:1.2;overflow-wrap:anywhere;display:flex;flex-direction:column;justify-content:flex-start}
-.seat.empty{background:transparent;border-style:dashed;color:var(--mute);font-weight:400}
-.seat.blk{background:repeating-linear-gradient(45deg,transparent 0 6px,var(--line) 6px 8px);border-style:dashed}
-.seat.sel{outline:3px solid var(--chalk);outline-offset:1px;border-color:var(--ink)}
-.chips{display:flex;flex-wrap:wrap;gap:3px;margin-top:auto;padding-top:4px}
-.chips i{font-style:normal;font-size:13px;line-height:18px;padding:0 5px;border-radius:4px;background:var(--c);color:#fff;font-weight:700}
-.seat .n{margin-top:auto;text-align:right;font-size:15px;font-variant-numeric:tabular-nums}
-.free{font-size:13px}
-.flash{animation:fl .6s ease-out}
-@keyframes fl{from{box-shadow:0 0 0 7px var(--c);transform:scale(1.05)}to{box-shadow:0 0 0 0 transparent;transform:none}}
-@media(prefers-reduced-motion:reduce){.flash{animation:none}#toast{transition:none}}
+.room{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px}
+.roomsvg{display:block;width:100%;height:auto;max-height:74vh;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.roomsvg.edit{touch-action:none}
+.floor{fill:var(--floor);stroke:var(--woodline);stroke-dasharray:8 6}
+.tbl{fill:var(--wood);stroke:var(--woodline);stroke-width:1.5}
+.furn.board .tbl{fill:var(--board);stroke:var(--board)}
+.furn.desk .tbl{fill:light-dark(#d4c9b2,#4d4538)}
+.edit .furn{cursor:grab}
+.tbl.on{stroke:var(--chalk);stroke-width:5}
+.tbl.bad{stroke:#e03131;stroke-width:4}
+.cell{fill:var(--seat);stroke:var(--line);stroke-width:1;cursor:pointer}
+.cell.empty{fill:color-mix(in srgb,var(--seat) 45%,transparent);stroke-dasharray:4 3}
+.cell.sel{stroke:var(--chalk);stroke-width:5}
+.edit .cell{pointer-events:none}
+.cell.flash{animation:flc .6s ease-out}
+@keyframes flc{from{stroke:var(--c);stroke-width:14px}to{stroke:var(--c);stroke-width:1px}}
+@media(prefers-reduced-motion:reduce){.cell.flash{animation:none}#toast{transition:none}}
+.labels text{pointer-events:none;text-anchor:middle;fill:var(--ink);font-weight:700}
+.labels .chip{fill:#fff;font-size:9px}
+.labels .fxb{fill:#e9efe9;font-size:12px;font-weight:400}
+.labels .fxd{fill:var(--ink);font-size:12px;font-weight:400}
+.labels .free{fill:var(--mute);font-weight:400;font-size:10px}
+.labels .val{font-size:13px}
+.labels .numt{fill:#fff;font-size:10px}
+.numc{fill:var(--board)}
 .hint{color:var(--mute);font-size:14px;margin:10px 0 0}
 .fld{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:15px}
 .fld.col{flex-direction:column;align-items:stretch;gap:4px;margin-bottom:12px}
 input,select,textarea{background:var(--seat);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:44px;font-size:16px;color:var(--ink)}
-input[type=number]{width:5em}
+input[type=number]{width:5.5em}
 textarea{width:100%;resize:vertical}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.panel .bar{margin-bottom:0}
+.panel+.panel{margin-top:-2px}
+.selbar{border-color:var(--chalk);box-shadow:0 0 0 2px color-mix(in srgb,var(--chalk) 40%,transparent)}
 .unpl{display:flex;flex-wrap:wrap;gap:8px;min-height:64px;padding:10px;border:1.5px dashed var(--line);border-radius:12px;cursor:pointer}
 .pick{background:var(--seat);border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;min-height:44px;font-weight:700;cursor:pointer}
 .pick.sel{outline:3px solid var(--chalk);border-color:var(--ink)}
@@ -93,9 +109,7 @@ th{font-size:14px;color:var(--mute);font-weight:700}
 #toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,16px);background:var(--board);color:#fff;padding:10px 18px;border-radius:999px;opacity:0;transition:.2s;pointer-events:none;z-index:30;max-width:90vw}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:600px){
- .seat{font-size:13px;min-height:58px;padding:4px}.grid{gap:5px}.room{padding:8px}
- .tabs button{padding:8px 9px}.brand{font-size:16px}.board{margin:0 5% 10px}
- .chips i{font-size:13px;padding:0 3px}
+ .room{padding:4px}.tabs button{padding:8px 9px}.brand{font-size:16px}
  .orow{grid-template-columns:52px 56px minmax(0,1fr)}.orow select{grid-column:1/3}
 }
 </style>
@@ -129,37 +143,140 @@ const DEF_OBS = [
   {id:'agit', name:'Agitation', letter:'G', color:'#c92a2a', sign:-1}
 ];
 const NAMES = ['Adam','Inès','Lucas','Chloé','Nathan','Léa','Hugo','Jade','Mathis','Lina','Théo','Manon','Enzo','Zoé','Noah','Camille','Rayan','Emma','Louis','Sarah','Yanis','Lou','Gabriel','Maëlys','Tom','Nour'];
-const UI = {tab:'seance', tool:'bav', discret:false, period:'cur', bObs:'bav', mode:'place'};
+const UI = {tab:'seance', tool:'bav', discret:false, period:'cur', bObs:'bav', mode:'place', view:'prof', tpl:'r2'};
 
-function seatKeys(c){ const k = []; for (let r = 0; r < c.rows; r++) for (let j = 0; j < c.cols; j++) k.push(r + '-' + j); return k; }
+/* ---------- Meubles : catalogue et géométrie (unités ≈ cm) ---------- */
+const CW = 65, CH = 50, SNAP = 10;
+const CAT = {
+  t1:{label:'Table de 1', cols:1, rows:1},
+  t2:{label:'Table de 2', cols:2, rows:1},
+  t3:{label:'Paillasse de 3', cols:3, rows:1},
+  i4:{label:'Îlot de 4', cols:2, rows:2},
+  i6:{label:'Îlot de 6', cols:3, rows:2},
+  board:{label:'Tableau', w:300, h:16},
+  desk:{label:'Bureau', w:120, h:60}
+};
+const TPL = {r2:'Rangées de tables de 2', r3:'Rangées de tables de 3', i4:'Îlots de 4', i6:'Îlots de 6', u:'En U (tables de 2)', labo:'Laboratoire (paillasses de 3)'};
+const seating = f => !!CAT[f.type].cols;
+function dims(f){ const k = CAT[f.type]; return k.cols ? {w:k.cols * CW, h:k.rows * CH} : {w:k.w, h:k.h}; }
+function cellsOf(f){
+  const k = CAT[f.type]; if (!k.cols) return [];
+  const {w, h} = dims(f), out = [];
+  for (let r = 0; r < k.rows; r++) for (let c = 0; c < k.cols; c++) out.push({i:r * k.cols + c, r, c, lx:-w / 2 + c * CW + CW / 2, ly:-h / 2 + r * CH + CH / 2});
+  return out;
+}
+function rot(x, y, a){ const t = a * Math.PI / 180, co = Math.cos(t), si = Math.sin(t); return [x * co - y * si, x * si + y * co]; }
+function seatPos(f, cl){ const [dx, dy] = rot(cl.lx, cl.ly, f.a); return [f.x + dx, f.y + dy]; }
+function corners(f){ const {w, h} = dims(f); return [[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x, y]) => { const [a, b] = rot(x, y, f.a); return [f.x + a, f.y + b]; }); }
+function overlap(A, B){
+  for (const P of [A, B]) for (let i = 0; i < 4; i++){
+    const [x1, y1] = P[i], [x2, y2] = P[(i + 1) % 4], nx = y2 - y1, ny = x1 - x2;
+    let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity;
+    A.forEach(([x, y]) => { const p = x * nx + y * ny; a0 = Math.min(a0, p); a1 = Math.max(a1, p); });
+    B.forEach(([x, y]) => { const p = x * nx + y * ny; b0 = Math.min(b0, p); b1 = Math.max(b1, p); });
+    if (a1 <= b0 + 1 || b1 <= a0 + 1) return false;
+  }
+  return true;
+}
+const snap = v => Math.round(v / SNAP) * SNAP;
+function inRoom(c, f){ return corners(f).every(([x, y]) => x >= -1 && y >= -1 && x <= c.room.w + 1 && y <= c.room.h + 1); }
+function fits(c, f, skip){ return inRoom(c, f) && !c.furn.some(g => g !== skip && g.id !== f.id && overlap(corners(f), corners(g))); }
+function freeSpot(c, f, near){
+  const tries = [];
+  for (let y = 40; y < c.room.h; y += 20) for (let x = 40; x < c.room.w; x += 20) tries.push([x, y]);
+  if (near) tries.sort((p, q) => Math.hypot(p[0] - near[0], p[1] - near[1]) - Math.hypot(q[0] - near[0], q[1] - near[1]));
+  for (const [x, y] of tries){ const g = {...f, x, y}; if (fits(c, g)) return [x, y]; }
+  return [snap(c.room.w / 2), snap(c.room.h / 2)];
+}
+
+/* ---------- Modèles de départ ---------- */
+function template(kind, n){
+  const F = []; let num = 0;
+  const add = (type, x, y, a) => F.push({id:uid(), type, x:Math.round(x), y:Math.round(y), a:a || 0, num:CAT[type].cols ? ++num : 0});
+  const per = {r2:2, r3:3, i4:4, i6:6, u:2, labo:3}[kind] || 2;
+  const T = Math.max(1, Math.ceil(n / per)), front = 130;
+  let W = 600, H = 500;
+  if (kind === 'r2' || kind === 'r3' || kind === 'labo'){
+    const type = kind === 'r2' ? 't2' : 't3', w = dims({type}).w, perRow = kind === 'r2' ? 3 : 2, gap = kind === 'r2' ? 80 : 110, pitch = kind === 'labo' ? 150 : 115;
+    const rows = Math.ceil(T / perRow);
+    W = perRow * w + (perRow - 1) * gap + 160; H = front + 25 + (rows - 1) * pitch + 25 + 90;
+    for (let i = 0; i < T; i++){ const r = Math.floor(i / perRow), col = i % perRow; add(type, 80 + w / 2 + col * (w + gap), front + 25 + r * pitch); }
+  } else if (kind === 'i4' || kind === 'i6'){
+    const {w, h} = dims({type:kind}), perRow = 3, gx = 110, gy = 110, rows = Math.ceil(T / perRow);
+    W = perRow * w + (perRow - 1) * gx + 160; H = front + rows * h + (rows - 1) * gy + 90;
+    for (let i = 0; i < T; i++){ const r = Math.floor(i / perRow), col = i % perRow; add(kind, 80 + w / 2 + col * (w + gx), front + h / 2 + r * (h + gy)); }
+  } else {
+    let b = Math.max(1, Math.round(T / 3)), s = Math.ceil((T - b) / 2); b = Math.max(1, T - 2 * s);
+    W = Math.max(640, b * 145 + 300);
+    for (let i = 0; i < s; i++) add('t2', 85, front + 65 + i * 145, 90);
+    const backY = front + 65 + Math.max(0, s - 1) * 145 + 65 + 70;
+    for (let i = 0; i < b; i++) add('t2', W / 2 - (b - 1) * 145 / 2 + i * 145, backY);
+    for (let i = 0; i < s; i++) add('t2', W - 85, front + 65 + i * 145, 90);
+    H = backY + 25 + 90;
+  }
+  W = Math.ceil(W / 10) * 10; H = Math.ceil(H / 10) * 10;
+  add('board', W / 2, 30); add('desk', W - 110, 80);
+  return {room:{w:W, h:H}, furn:F};
+}
+
+/* ---------- Classes, places, données ---------- */
+function seatKeys(c){ return c.furn.filter(seating).sort((p, q) => p.num - q.num).flatMap(f => cellsOf(f).map(cl => f.id + '.' + cl.i)); }
+function seatMap(c){ const m = {}; c.furn.filter(seating).forEach(f => cellsOf(f).forEach(cl => { const [x, y] = seatPos(f, cl); m[f.id + '.' + cl.i] = {x, y, f, cl}; })); return m; }
 function autoPlace(c, shuffle){
-  const free = seatKeys(c).filter(k => !c.blocked.includes(k));
-  const list = [...c.students];
+  const free = seatKeys(c), list = [...c.students];
   if (shuffle) for (let i = list.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
   c.seats = {};
-  list.slice(0, free.length).forEach((s, i) => { c.seats[free.at(i)] = s.id; });
+  list.slice(0, free.length).forEach((s, i) => { c.seats[free[i]] = s.id; });
 }
-function makeClass(name, names){
+function makeClass(name, names, kind){
   const students = names.map(n => ({id:uid(), name:n}));
-  const cols = students.length > 48 ? 8 : 6;
-  const c = {id:uid(), name, students, rows:Math.min(10, Math.max(4, Math.ceil(students.length / cols))), cols, aisle:2, blocked:[], seats:{}, sessions:[]};
+  const t = template(kind || 'r2', Math.max(students.length, 24));
+  const c = {id:uid(), name, students, room:t.room, furn:t.furn, seats:{}, sessions:[]};
   autoPlace(c);
   return c;
 }
 function keyOf(c, sid){ return Object.keys(c.seats).find(k => c.seats[k] === sid) || ''; }
 function sample(){
-  const c = makeClass('5e B (exemple)', NAMES);
+  const c = makeClass('5e B (exemple)', NAMES, 'i4');
   const t0 = Date.now() - 2 * 864e5;
   const plan = [[2,'bav'],[3,'bav'],[0,'part'],[2,'bav'],[7,'part'],[3,'bav'],[12,'hors'],[15,'aide'],[20,'bav'],[21,'bav'],[2,'bav'],[9,'part'],[12,'agit'],[3,'bav'],[18,'trav'],[5,'part']];
-  c.sessions.push({id:uid(), start:t0, end:t0 + 3300000, seats:{...c.seats}, ev:plan.map(([i, o], n) => { const s = c.students.at(i).id; return {s, seat:keyOf(c, s), o, t:t0 + n * 180000}; })});
+  c.sessions.push({id:uid(), start:t0, end:t0 + 3300000, seats:{...c.seats}, ev:plan.map(([i, o], n) => { const s = c.students[i].id; return {s, seat:keyOf(c, s), o, t:t0 + n * 180000}; })});
   return c;
 }
-function fresh(){ const c = sample(); return {classes:[c], obs:DEF_OBS.map(o => ({...o})), cur:c.id, ui:{...UI}}; }
+function fresh(){ const c = sample(); return {v:2, classes:[c], obs:DEF_OBS.map(o => ({...o})), cur:c.id, ui:{...UI}}; }
 
-let S = null, storeOK = true, sel = null, flashK = null, flashC = '', toastT = 0;
+/* Conversion des classes de la première version (grille de places) en tables posées dans la salle */
+function migrate(d){
+  if (d.v >= 2) return d;
+  try { localStorage.setItem(KEY + '-sauvegarde-v1', JSON.stringify(d)); } catch (e) {}
+  d.classes.forEach(c => {
+    if (c.furn) return;
+    const rows = c.rows || 5, cols = c.cols || 6, a = +c.aisle || 0, blocked = c.blocked || [], map = {}, F = [];
+    const blocks = []; let j = 0;
+    while (j < cols){ const l0 = Math.min(a || 2, cols - j); let s = j, l = l0; while (l > 3){ blocks.push([s, 2]); s += 2; l -= 2; } blocks.push([s, l]); j += l0; }
+    const gap = a ? 80 : 20; let x = 80; const xs = blocks.map(([, l]) => { const cx = x + l * CW / 2; x += l * CW + gap; return cx; });
+    const W = Math.ceil((x - gap + 80) / 10) * 10, front = 130, pitch = 115; let num = 0;
+    for (let r = 0; r < rows; r++) blocks.forEach(([s, l], b) => {
+      const f = {id:uid(), type:'t' + l, x:Math.round(xs[b]), y:front + 25 + r * pitch, a:0, num:++num}; F.push(f);
+      for (let k = 0; k < l; k++) if (!blocked.includes(r + '-' + (s + k))) map[r + '-' + (s + k)] = f.id + '.' + k;
+    });
+    const H = Math.ceil((front + 25 + (rows - 1) * pitch + 25 + 90) / 10) * 10;
+    F.push({id:uid(), type:'board', x:Math.round(W / 2), y:30, a:0, num:0}, {id:uid(), type:'desk', x:W - 110, y:80, a:0, num:0});
+    const conv = seats => { const o = {}; Object.keys(seats || {}).forEach(k => { if (map[k]) o[map[k]] = seats[k]; }); return o; };
+    c.room = {w:W, h:H}; c.furn = F; c.seats = conv(c.seats);
+    (c.sessions || []).forEach(s => { s.seats = conv(s.seats); s.ev.forEach(e => { if (map[e.seat]) e.seat = map[e.seat]; }); });
+    delete c.rows; delete c.cols; delete c.aisle; delete c.blocked;
+  });
+  d.v = 2;
+  return d;
+}
+
+let S = null, storeOK = true, sel = null, flashK = null, flashC = '', toastT = 0, drag = null, migrated = false;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { storeOK = false; }
 if (!S || !Array.isArray(S.classes) || !S.classes.length || !Array.isArray(S.obs)) S = fresh();
+else if (!(S.v >= 2)){ S = migrate(S); migrated = true; }
 S.ui = Object.assign({...UI}, S.ui || {});
+if (S.ui.mode === 'block') S.ui.mode = 'place';
 
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); storeOK = true; } catch (e) { storeOK = false; } }
 function cls(){ return S.classes.find(c => c.id === S.cur) || S.classes[0]; }
@@ -169,7 +286,8 @@ function live(c){ const s = c.sessions.at(-1); return s && !s.end ? s : null; }
 function hm(t){ return new Date(t).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}); }
 function dt(t){ return new Date(t).toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'short'}) + ' · ' + hm(t); }
 function ini(n){ return n.trim().split(/\s+/).map(w => w.charAt(0)).join('').toUpperCase(); }
-function seatLabel(k){ const [r, j] = k.split('-').map(Number); return k ? `rang ${r + 1}, place ${j + 1}` : ''; }
+function short(n){ return n.length > 12 ? n.slice(0, 11) + '…' : n; }
+function seatLabel(c, k){ const [fid, i] = String(k).split('.'); const f = c.furn.find(x => x.id === fid); return f ? `table ${f.num}, place ${+i + 1}` : ''; }
 function slug(n){ return n.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'classe'; }
 function commit(){ save(); render(); }
 function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
@@ -177,22 +295,46 @@ function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('sh
 S.classes.forEach(c => { const L = live(c); if (L){ const last = L.ev.length ? L.ev.at(-1).t : L.start; if (Date.now() - last > 3 * 3600e3) L.end = last; } });
 
 function cleanSeats(c){
-  Object.keys(c.seats).forEach(k => {
-    const [r, j] = k.split('-').map(Number);
-    if (r >= c.rows || j >= c.cols || c.blocked.includes(k) || !stu(c, c.seats[k])) delete c.seats[k];
-  });
+  const valid = new Set(seatKeys(c));
+  Object.keys(c.seats).forEach(k => { if (!valid.has(k) || !stu(c, c.seats[k])) delete c.seats[k]; });
 }
 
-function grid(c, cell){
-  const a = +c.aisle || 0, tr = [];
-  for (let j = 0; j < c.cols; j++){ if (a && j && j % a === 0) tr.push('12px'); tr.push('minmax(0,1fr)'); }
-  let h = '';
-  for (let r = 0; r < c.rows; r++) for (let j = 0; j < c.cols; j++){
-    const k = r + '-' + j, o = cell(k);
-    h += `<button class="seat ${o.cls || ''}" data-seat="${k}" style="grid-row:${r + 1};grid-column:${j + (a ? Math.floor(j / a) : 0) + 1};${o.style || ''}"${o.label ? ` aria-label="${esc(o.label)}"` : ''}>${o.html || ''}</button>`;
-  }
-  return `<div class="room"><div class="board">Tableau</div><div class="grid" style="grid-template-columns:${tr.join(' ')}">${h}</div></div>`;
+/* ---------- Rendu SVG de la salle ---------- */
+function viewT(c){ const prof = S.ui.view === 'prof', W = c.room.w, H = c.room.h; return {T:(x, y) => prof ? [W - x, H - y] : [x, y], A:a => (a + (prof ? 180 : 0)) % 360}; }
+function nameSvg(name, x, y, avail){ const n = short(name), fs = Math.min(15, Math.max(8, (avail || 58) / (Math.max(4, n.length) * 0.57))); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${fs.toFixed(1)}">${esc(n)}</text>`; }
+function chipsSvg(list, x, y){
+  const w = l => 7 + l.txt.length * 6; let px = x - (list.reduce((t, l) => t + w(l) + 2, -2)) / 2;
+  return list.map(l => { const ww = w(l), s = `<rect x="${px.toFixed(1)}" y="${(y - 8).toFixed(1)}" width="${ww}" height="12" rx="3" fill="${esc(l.color)}"/><text class="chip" x="${(px + ww / 2).toFixed(1)}" y="${(y + 1.5).toFixed(1)}">${esc(l.txt)}</text>`; px += ww + 2; return s; }).join('');
 }
+function svgRoom(c, o){
+  const {T, A} = viewT(c), W = c.room.w, H = c.room.h;
+  const bad = new Set();
+  if (o.editor){ const P = c.furn.map(corners); for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) if (overlap(P[i], P[j])){ bad.add(c.furn[i].id); bad.add(c.furn[j].id); } }
+  let x0 = 0, y0 = 0, x1 = W, y1 = H;
+  if (o.fit === 'content' && c.furn.length){
+    x0 = y0 = Infinity; x1 = y1 = -Infinity;
+    c.furn.forEach(f => corners(f).forEach(([x, y]) => { const [vx, vy] = T(x, y); x0 = Math.min(x0, vx); y0 = Math.min(y0, vy); x1 = Math.max(x1, vx); y1 = Math.max(y1, vy); }));
+    x0 -= 16; y0 -= 16; x1 += 16; y1 += 16;
+  }
+  let g = o.editor ? `<rect class="floor" x="0" y="0" width="${W}" height="${H}" rx="6"/>` : '', lab = '';
+  c.furn.forEach(f => {
+    const [X, Y] = T(f.x, f.y), {w, h} = dims(f), isSel = sel && sel.t === 'furn' && sel.id === f.id;
+    let inner = `<rect class="tbl${bad.has(f.id) ? ' bad' : ''}${isSel ? ' on' : ''}" x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="${seating(f) ? 6 : 3}"/>`;
+    let fl = '';
+    const t = f.a * Math.PI / 180, co = Math.abs(Math.cos(t)), si = Math.abs(Math.sin(t)), avail = Math.min(co > 1e-6 ? (CW - 8) / co : 1e9, si > 1e-6 ? (CH - 8) / si : 1e9) - 4;
+    cellsOf(f).forEach(cl => {
+      const key = f.id + '.' + cl.i, r = o.cell ? o.cell(key) : {};
+      inner += `<rect class="cell ${r.cls || ''}" data-seat="${key}" x="${cl.lx - CW / 2 + 3}" y="${cl.ly - CH / 2 + 3}" width="${CW - 6}" height="${CH - 6}" rx="5"${r.style ? ` style="${r.style}"` : ''}><title>${esc(r.label || '')}</title></rect>`;
+      if (r.text){ const [sx, sy] = T(...seatPos(f, cl)); fl += r.text(sx, sy, avail); }
+    });
+    if (!seating(f)) fl += `<text class="${f.type === 'board' ? 'fxb' : 'fxd'}" x="${X}" y="${Y + 4}">${CAT[f.type].label}</text>`;
+    else if (o.nums){ const [ex, ey] = rot(0, -h / 2, f.a), [nx, ny] = T(f.x + ex, f.y + ey); fl += `<circle class="numc" cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="9"/><text class="numt" x="${nx.toFixed(1)}" y="${(ny + 3.5).toFixed(1)}">${f.num}</text>`; }
+    g += `<g class="furn ${f.type}" data-furn="${f.id}" transform="translate(${X} ${Y}) rotate(${A(f.a)})">${inner}</g>`;
+    lab += `<g data-lab="${f.id}">${fl}</g>`;
+  });
+  return `<svg class="roomsvg${o.editor ? ' edit' : ''}" viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}" role="img" aria-label="Plan de la salle, ${S.ui.view === 'prof' ? 'vue enseignant' : 'vue élève'}" style="aspect-ratio:${(x1 - x0) / (y1 - y0)}">${g}<g class="labels">${lab}</g></svg>`;
+}
+function viewBtn(){ const p = S.ui.view === 'prof'; return `<button class="btn" data-act="view" title="Changer de point de vue">${p ? 'Vue enseignant' : 'Vue élève'} ⇅</button>`; }
 
 function counts(sessions){
   const cnt = {};
@@ -200,52 +342,67 @@ function counts(sessions){
   return cnt;
 }
 
+/* ---------- Vues ---------- */
 function vSeance(c){
   const L = live(c), ev = L ? L.ev : [], d = S.ui.discret, cnt = counts(L ? [L] : []);
   if (S.ui.tool !== 'erase' && !obsById(S.ui.tool)) S.ui.tool = S.obs.length ? S.obs[0].id : 'erase';
   const pal = S.obs.map((o, i) => `<button class="tool ${S.ui.tool === o.id ? 'on' : ''}" data-tool="${o.id}" style="--c:${esc(o.color)}" aria-pressed="${S.ui.tool === o.id}" title="Raccourci clavier : ${i + 1}"><span class="lt">${esc(o.letter)}</span>${esc(o.name)}</button>`).join('')
     + `<button class="tool erase ${S.ui.tool === 'erase' ? 'on' : ''}" data-tool="erase" aria-pressed="${S.ui.tool === 'erase'}"><span class="lt">−1</span>Gomme</button>`;
   const st = L ? `Séance en cours depuis <b>${hm(L.start)}</b> · ${ev.length} saisie${ev.length > 1 ? 's' : ''}` : 'Pas de séance en cours : le premier toucher la démarre';
-  const g = grid(c, k => {
-    if (c.blocked.includes(k)) return {cls:'blk', label:'Place condamnée'};
+  const room = svgRoom(c, {fit:'content', cell:k => {
     const s = stu(c, c.seats[k]);
     if (!s) return {cls:'empty', label:'Place libre'};
     const m = cnt[s.id] || {};
-    const chips = d ? '' : S.obs.filter(o => m[o.id]).map(o => `<i style="--c:${esc(o.color)}">${esc(o.letter)}${m[o.id] > 1 ? m[o.id] : ''}</i>`).join('');
-    return {html:`<span>${esc(d ? ini(s.name) : s.name)}</span><span class="chips">${chips}</span>`, label:s.name};
-  });
+    const chips = d ? [] : S.obs.filter(o => m[o.id]).sort((p, q) => m[q.id] - m[p.id]).slice(0, 3).map(o => ({color:o.color, txt:o.letter + (m[o.id] > 1 ? m[o.id] : '')}));
+    return {label:s.name, text:(x, y, av) => nameSvg(d ? ini(s.name) : s.name, x, y + (chips.length ? -3 : 5), av) + (chips.length ? chipsSvg(chips, x, y + 13) : '')};
+  }});
   return `<div class="bar"><span class="status">${st}</span>
     <button class="btn" data-act="undo" ${ev.length ? '' : 'disabled'}>Annuler la dernière</button>
     <button class="btn ${d ? 'on' : ''}" data-act="discret" aria-pressed="${d}">Mode discret</button>
+    ${viewBtn()}
     ${L ? '<button class="btn pri" data-act="end">Terminer la séance</button>' : ''}</div>
-    <div class="pal" role="toolbar" aria-label="Observables">${pal}</div>${g}
+    <div class="pal" role="toolbar" aria-label="Observables">${pal}</div><div class="room">${room}</div>
     <p class="hint">Choisissez un observable, puis touchez les élèves : il reste sélectionné. La gomme retire la dernière saisie d’un élève. Au clavier : touches 1 à ${S.obs.length}, Ctrl+Z pour annuler.</p>
     ${c.name.includes('(exemple)') ? '<p class="hint">Classe d’exemple avec des prénoms fictifs : créez la vôtre dans Réglages.</p>' : ''}`;
 }
 
 function vPlan(c){
-  const placed = new Set(Object.values(c.seats)), un = c.students.filter(s => !placed.has(s.id)), m = S.ui.mode;
-  const g = grid(c, k => {
-    const b = c.blocked.includes(k), s = stu(c, c.seats[k]), isSel = sel && sel.t === 'seat' && sel.k === k;
-    return {cls:(b ? 'blk' : s ? '' : 'empty') + (isSel ? ' sel' : ''), html:b ? '' : s ? esc(s.name) : '<span class="free">libre</span>', label:b ? 'Place condamnée' : s ? s.name : 'Place libre'};
-  });
-  const help = m === 'block' ? 'Touchez une place pour la condamner ou la rouvrir.'
-    : !sel ? 'Touchez un élève (sur le plan ou dans la liste), puis la place voulue. Si elle est occupée, les deux élèves échangent leur place.'
+  const ed = S.ui.mode === 'edit', placed = new Set(Object.values(c.seats)), un = c.students.filter(s => !placed.has(s.id));
+  const head = `${live(c) ? '<div class="warn">Une séance est en cours : les changements valent pour les saisies suivantes.</div>' : ''}
+    <div class="bar"><div class="seg" role="group" aria-label="Mode">
+      <button class="btn ${!ed ? 'on' : ''}" data-act="modePlace" aria-pressed="${!ed}">Placer les élèves</button>
+      <button class="btn ${ed ? 'on' : ''}" data-act="modeEdit" aria-pressed="${ed}">Aménager la salle</button></div>
+      <span class="status"></span>${viewBtn()}</div>`;
+  if (ed){
+    const f = sel && sel.t === 'furn' ? c.furn.find(x => x.id === sel.id) : null;
+    const nSeats = c.furn.filter(seating).reduce((t, x) => t + cellsOf(x).length, 0);
+    const hasB = c.furn.some(x => x.type === 'board'), hasD = c.furn.some(x => x.type === 'desk');
+    const selbar = f ? `<div class="panel selbar"><div class="bar"><span class="status"><b>${seating(f) ? 'Table ' + f.num + ' · ' : ''}${CAT[f.type].label}</b> · ${f.a}°</span>
+        <button class="btn" data-act="rot" data-d="-15" aria-label="Pivoter de 15° vers la gauche">↺ 15°</button>
+        <button class="btn" data-act="rot" data-d="15" aria-label="Pivoter de 15° vers la droite">↻ 15°</button>
+        <button class="btn" data-act="rot" data-d="90" aria-label="Pivoter d’un quart de tour">↻ 90°</button>
+        <button class="btn" data-act="dup">Dupliquer</button>
+        <button class="btn danger" data-act="delFurn">Supprimer</button></div></div>`
+      : `<div class="panel"><div class="bar"><span class="lbl">Ajouter :</span>${['t1','t2','t3','i4','i6'].map(t => `<button class="btn small" data-act="add" data-type="${t}">${CAT[t].label}</button>`).join('')}${hasB ? '' : '<button class="btn small" data-act="add" data-type="board">Tableau</button>'}${hasD ? '' : '<button class="btn small" data-act="add" data-type="desk">Bureau</button>'}</div></div>`;
+    return head + `<div class="panel"><div class="bar">
+        <label class="fld">Modèle <select data-f="tpl">${Object.entries(TPL).map(([k, l]) => `<option value="${k}" ${S.ui.tpl === k ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        <label class="fld">Places <input type="number" id="tplN" min="1" max="60" value="${Math.max(c.students.length, 1)}"></label>
+        <button class="btn" data-act="applyTpl">Appliquer le modèle</button>
+        <span class="status"></span>
+        <label class="fld">Salle <input type="number" step="0.5" min="3" max="20" value="${c.room.w / 100}" data-f="roomW" aria-label="Largeur de la salle en mètres"> × <input type="number" step="0.5" min="3" max="20" value="${c.room.h / 100}" data-f="roomH" aria-label="Profondeur de la salle en mètres"> m</label>
+      </div></div>${selbar}
+      <div class="room">${svgRoom(c, {fit:'room', editor:true, nums:true, cell:k => { const s = stu(c, c.seats[k]); return s ? {text:(x, y, av) => nameSvg(s.name, x, y + 5, av)} : {cls:'empty'}; }})}</div>
+      <p class="hint">Touchez un meuble pour le sélectionner, faites-le glisser pour le déplacer (calé tous les 10 cm). ${nSeats} places pour ${c.students.length} élèves. Un contour rouge signale deux meubles qui se chevauchent. <button class="btn small" data-act="renum">Renuméroter les tables</button></p>`;
+  }
+  const room = svgRoom(c, {fit:'content', nums:true, cell:k => {
+    const s = stu(c, c.seats[k]), isSel = sel && sel.t === 'seat' && sel.k === k;
+    return s ? {cls:isSel ? 'sel' : '', label:s.name, text:(x, y, av) => nameSvg(s.name, x, y + 5, av)} : {cls:'empty' + (isSel ? ' sel' : ''), label:'Place libre', text:(x, y) => `<text class="free" x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}">libre</text>`};
+  }});
+  const help = !sel ? 'Touchez un élève (sur le plan ou dans la liste), puis la place voulue. Si elle est occupée, les deux élèves échangent leur place.'
     : sel.t === 'seat' ? 'Touchez une autre place pour déplacer ou échanger, ou la zone « Élèves sans place » pour retirer cet élève du plan.'
     : 'Touchez une place pour y installer cet élève.';
-  return `${live(c) ? '<div class="warn">Une séance est en cours : les changements de place valent pour les saisies suivantes.</div>' : ''}
-    <div class="bar">
-      <label class="fld">Rangées <input type="number" min="1" max="10" value="${c.rows}" data-f="rows"></label>
-      <label class="fld">Colonnes <input type="number" min="1" max="12" value="${c.cols}" data-f="cols"></label>
-      <label class="fld">Allée <select data-f="aisle">${[0,1,2,3,4].map(v => `<option value="${v}" ${+c.aisle === v ? 'selected' : ''}>${v ? 'toutes les ' + v + ' col.' : 'aucune'}</option>`).join('')}</select></label>
-    </div>
-    <div class="bar"><div class="seg" role="group" aria-label="Mode">
-      <button class="btn ${m === 'place' ? 'on' : ''}" data-act="modePlace" aria-pressed="${m === 'place'}">Placer les élèves</button>
-      <button class="btn ${m === 'block' ? 'on' : ''}" data-act="modeBlock" aria-pressed="${m === 'block'}">Condamner des places</button></div>
-      <span class="status"></span>
-      <button class="btn" data-act="shuffle">Placement aléatoire</button>
-      <button class="btn" data-act="clear">Vider le plan</button></div>
-    ${g}<p class="hint">${help}</p>
+  return head + `<div class="bar"><span class="status"></span><button class="btn" data-act="shuffle">Placement aléatoire</button><button class="btn" data-act="clear">Vider le plan</button></div>
+    <div class="room">${room}</div><p class="hint">${help}</p>
     <h2>Élèves sans place <span class="count">${un.length}</span></h2>
     <div class="unpl" data-act="unplace">${un.map(s => `<button class="pick ${sel && sel.t === 'stu' && sel.id === s.id ? 'sel' : ''}" data-pick="${s.id}">${esc(s.name)}</button>`).join('') || '<span class="hint">Tous les élèves sont placés.</span>'}</div>`;
 }
@@ -256,23 +413,23 @@ function vBilan(c){
   const bo = S.ui.bObs === 'solde' ? null : obsById(S.ui.bObs) || null;
   const val = id => { const m = cnt[id] || {}; return bo ? (m[bo.id] || 0) : S.obs.reduce((t, o) => t + (m[o.id] || 0) * o.sign, 0); };
   const max = Math.max(1, ...c.students.map(s => Math.abs(val(s.id))));
-  const g = grid(c, k => {
-    if (c.blocked.includes(k)) return {cls:'blk', label:'Place condamnée'};
+  const room = svgRoom(c, {fit:'content', cell:k => {
     const s = stu(c, c.seats[k]);
-    if (!s) return {cls:'empty', label:'Place libre'};
+    if (!s) return {cls:'empty'};
     const v = val(s.id), col = bo ? esc(bo.color) : (v >= 0 ? 'var(--pos)' : 'var(--neg)');
-    return {style:v ? `background:color-mix(in srgb,${col} ${Math.round(12 + Math.abs(v) / max * 48)}%,var(--seat))` : '',
-      html:`<span>${esc(s.name)}</span><span class="n">${v > 0 && !bo ? '+' : ''}${v || ''}</span>`, label:`${s.name} : ${v}`};
-  });
+    return {label:`${s.name} : ${v}`, style:v ? `fill:color-mix(in srgb,${col} ${Math.round(14 + Math.abs(v) / max * 50)}%,var(--seat))` : '',
+      text:(x, y, av) => nameSvg(s.name, x, y + (v ? -3 : 5), av) + (v ? `<text class="val" x="${x.toFixed(1)}" y="${(y + 14).toFixed(1)}">${v > 0 && !bo ? '+' : ''}${v}</text>` : '')};
+  }});
   const neg = bo && bo.sign < 0 ? [bo] : S.obs.filter(o => o.sign < 0);
   const nv = id => { const m = cnt[id] || {}; return neg.reduce((t, o) => t + (m[o.id] || 0), 0); };
-  const a = +c.aisle || 0, pairs = [];
-  for (let r = 0; r < c.rows; r++) for (let j = 0; j < c.cols; j++){
-    const x = c.seats[r + '-' + j]; if (!x) continue;
-    const nb = [];
-    if (j + 1 < c.cols && !(a && (j + 1) % a === 0)) nb.push([r + '-' + (j + 1), 'voisins de table']);
-    if (r + 1 < c.rows) nb.push([(r + 1) + '-' + j, 'l’un derrière l’autre']);
-    nb.forEach(([k2, rel]) => { const y = c.seats[k2]; if (!y) return; const va = nv(x), vb = nv(y); if (va && vb) pairs.push({x, y, va, vb, rel, sc:Math.min(va, vb)}); });
+  const pos = seatMap(c), keys = Object.keys(c.seats).filter(k => pos[k]), pairs = [];
+  for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++){
+    const A = pos[keys[i]], B = pos[keys[j]]; let rel = '';
+    if (A.f === B.f){ if (A.cl.r === B.cl.r && Math.abs(A.cl.c - B.cl.c) === 1) rel = 'voisins de table'; else if (A.cl.c === B.cl.c && Math.abs(A.cl.r - B.cl.r) === 1) rel = 'face à face'; }
+    else if (Math.hypot(A.x - B.x, A.y - B.y) < 85) rel = 'tables voisines';
+    if (!rel) continue;
+    const x = c.seats[keys[i]], y = c.seats[keys[j]], va = nv(x), vb = nv(y);
+    if (va && vb) pairs.push({x, y, va, vb, rel, sc:Math.min(va, vb)});
   }
   pairs.sort((u, w) => w.sc - u.sc || (w.va + w.vb) - (u.va + u.vb));
   const negLabel = neg.length === 1 ? neg[0].name.toLowerCase() : 'observables négatifs';
@@ -287,10 +444,10 @@ function vBilan(c){
   return `<div class="bar">
       <label class="fld">Période <select data-f="period">${per.map(([v, l]) => `<option value="${v}" ${p === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
       <label class="fld">Afficher <select data-f="bObs"><option value="solde" ${!bo ? 'selected' : ''}>Solde (positifs − négatifs)</option>${S.obs.map(o => `<option value="${o.id}" ${bo && bo.id === o.id ? 'selected' : ''}>${esc(o.name)}</option>`).join('')}</select></label>
-      <span class="status">${pick.length} séance${pick.length > 1 ? 's' : ''} · ${total} saisie${total > 1 ? 's' : ''}</span></div>
+      <span class="status">${pick.length} séance${pick.length > 1 ? 's' : ''} · ${total} saisie${total > 1 ? 's' : ''}</span>${viewBtn()}</div>
     ${pick.length ? '' : '<div class="warn">Aucune séance enregistrée pour cette classe : lancez-en une depuis l’onglet Séance.</div>'}
-    <div class="two"><div>${g}</div><aside><h2>Voisins qui cumulent</h2>${pl}<p class="hint">Calculé d’après le plan actuel, sur la période choisie. C’est une piste pour séparer un binôme, pas un verdict.</p></aside></div>
-    <h2>Par élève</h2><div class="scroll"><table><thead><tr><th>Élève</th>${S.obs.map(o => `<th class="num" title="${esc(o.name)}">${esc(o.name)}</th>`).join('')}<th class="num">Solde</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="two"><div class="room">${room}</div><aside><h2>Voisins qui cumulent</h2>${pl}<p class="hint">Calculé d’après le plan actuel : voisins de table, face à face dans un îlot, ou places de tables voisines à moins de 85 cm. C’est une piste pour séparer un binôme, pas un verdict.</p></aside></div>
+    <h2>Par élève</h2><div class="scroll"><table><thead><tr><th>Élève</th>${S.obs.map(o => `<th class="num">${esc(o.name)}</th>`).join('')}<th class="num">Solde</th></tr></thead><tbody>${rows}</tbody></table></div>
     <h2>Séances</h2>${sl ? `<div class="scroll"><table><thead><tr><th>Début</th><th class="num">Durée</th><th class="num">Saisies</th><th></th></tr></thead><tbody>${sl}</tbody></table></div>` : '<p class="hint">Aucune séance.</p>'}`;
 }
 
@@ -302,6 +459,7 @@ function vReglages(c){
     <section class="card"><h2>Nouvelle classe</h2>
       <label class="fld col">Nom <input id="ncName" placeholder="Ex. 4e A"></label>
       <label class="fld col">Élèves, un par ligne (collez depuis un tableur ou Pronote) <textarea rows="6" id="ncList"></textarea></label>
+      <label class="fld col">Disposition de départ <select id="ncTpl">${Object.entries(TPL).map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select></label>
       <button class="btn pri" data-act="newClass">Créer la classe</button></section>
     <section class="card"><h2>Observables</h2><p class="hint">8 au maximum. La lettre s’affiche sur le plan ; le sens compte dans le solde du bilan.</p>
       ${S.obs.map((o, i) => `<div class="orow" data-i="${i}"><input type="color" value="${esc(o.color)}" data-f="ocolor" aria-label="Couleur de ${esc(o.name)}"><input class="lt" maxlength="2" value="${esc(o.letter)}" data-f="oletter" aria-label="Lettre de ${esc(o.name)}"><input value="${esc(o.name)}" data-f="oname" aria-label="Nom de l’observable"><select data-f="osign" aria-label="Sens de ${esc(o.name)}"><option value="1" ${o.sign > 0 ? 'selected' : ''}>positif</option><option value="-1" ${o.sign < 0 ? 'selected' : ''}>négatif</option><option value="0" ${o.sign === 0 ? 'selected' : ''}>neutre</option></select><button class="btn small" data-act="delObs" data-i="${i}">Retirer</button></div>`).join('')}
@@ -351,6 +509,7 @@ async function offer(filename, text){
     ['Fermer', null, 'pri']], text);
 }
 
+/* ---------- Gestes ---------- */
 function seanceTap(k){
   const c = cls(), sid = c.seats[k], s = stu(c, sid);
   if (!s) return;
@@ -373,17 +532,10 @@ function seanceTap(k){
 }
 
 function planTap(k){
-  const c = cls();
-  if (S.ui.mode === 'block'){
-    const i = c.blocked.indexOf(k);
-    if (i >= 0) c.blocked.splice(i, 1); else { c.blocked.push(k); delete c.seats[k]; }
-    sel = null; return commit();
-  }
-  if (c.blocked.includes(k)) return;
-  const here = c.seats[k];
+  const c = cls(), here = c.seats[k];
   if (!sel){ if (here) sel = {t:'seat', k}; return render(); }
   if (sel.t === 'stu'){ c.seats[k] = sel.id; }
-  else {
+  else if (sel.t === 'seat'){
     if (sel.k === k){ sel = null; return render(); }
     const moving = c.seats[sel.k];
     if (here) c.seats[sel.k] = here; else delete c.seats[sel.k];
@@ -392,6 +544,38 @@ function planTap(k){
   sel = null; commit();
 }
 
+function toRoom(svg, e){
+  const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  const q = pt.matrixTransform(svg.getScreenCTM().inverse());
+  return viewT(cls()).T(q.x, q.y);
+}
+document.addEventListener('pointerdown', e => {
+  if (S.ui.tab !== 'plan' || S.ui.mode !== 'edit' || !$('#modal').hidden) return;
+  const svg = e.target.closest && e.target.closest('svg.roomsvg'); if (!svg) return;
+  const g = e.target.closest('[data-furn]');
+  if (!g){ if (sel){ sel = null; render(); } return; }
+  const f = cls().furn.find(x => x.id === g.dataset.furn); if (!f) return;
+  const [sx, sy] = toRoom(svg, e);
+  drag = {f, g, svg, sx, sy, fx:f.x, fy:f.y, moved:false, lab:svg.querySelector(`[data-lab="${f.id}"]`)};
+  try { svg.setPointerCapture(e.pointerId); } catch (_) {}
+  e.preventDefault();
+});
+document.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const c = cls(), {T, A} = viewT(c), [px, py] = toRoom(drag.svg, e);
+  if (!drag.moved && Math.hypot(px - drag.sx, py - drag.sy) < 6) return;
+  drag.moved = true;
+  const f = drag.f, {w, h} = dims(f), m = Math.min(w, h) / 2;
+  f.x = Math.max(m, Math.min(c.room.w - m, snap(drag.fx + px - drag.sx)));
+  f.y = Math.max(m, Math.min(c.room.h - m, snap(drag.fy + py - drag.sy)));
+  const [X, Y] = T(f.x, f.y), [X0, Y0] = T(drag.fx, drag.fy);
+  drag.g.setAttribute('transform', `translate(${X} ${Y}) rotate(${A(f.a)})`);
+  if (drag.lab) drag.lab.setAttribute('transform', `translate(${X - X0} ${Y - Y0})`);
+});
+function endDrag(){ if (!drag) return; const d = drag; drag = null; sel = {t:'furn', id:d.f.id}; commit(); }
+document.addEventListener('pointerup', endDrag);
+document.addEventListener('pointercancel', endDrag);
+
 function restore(file){
   if (!file) return;
   file.text().then(txt => {
@@ -399,21 +583,51 @@ function restore(file){
     try { const j = JSON.parse(txt); d = j && j.data ? j.data : j; } catch (e) {}
     if (!d || !Array.isArray(d.classes) || !d.classes.length || !Array.isArray(d.obs)) return toast('Ce fichier n’est pas une sauvegarde valide');
     ask(`Remplacer toutes les données de ce navigateur par cette sauvegarde (${d.classes.length} classe${d.classes.length > 1 ? 's' : ''}) ?`, 'Restaurer', () => {
-      S = d; S.ui = Object.assign({...UI}, S.ui || {}); if (!cls()) S.cur = S.classes[0].id;
+      S = migrate(d); S.ui = Object.assign({...UI}, S.ui || {}); if (S.ui.mode === 'block') S.ui.mode = 'place'; if (!cls()) S.cur = S.classes[0].id;
       sel = null; commit(); toast('Sauvegarde restaurée');
     });
   });
 }
 
+const selFurn = () => sel && sel.t === 'furn' ? cls().furn.find(x => x.id === sel.id) : null;
 const acts = {
   undo(){ const c = cls(), L = live(c); if (!L || !L.ev.length) return; const e = L.ev.pop(); toast('Annulé : ' + ((obsById(e.o) || {}).name || '') + ' · ' + ((stu(c, e.s) || {}).name || '')); commit(); },
   discret(){ S.ui.discret = !S.ui.discret; commit(); },
+  view(){ S.ui.view = S.ui.view === 'prof' ? 'eleve' : 'prof'; commit(); },
   end(){ const c = cls(), L = live(c); if (!L) return; L.end = Date.now(); if (!L.ev.length) c.sessions.pop(); toast('Séance terminée · ' + L.ev.length + ' saisie' + (L.ev.length > 1 ? 's' : '')); commit(); },
   modePlace(){ S.ui.mode = 'place'; sel = null; commit(); },
-  modeBlock(){ S.ui.mode = 'block'; sel = null; commit(); },
+  modeEdit(){ S.ui.mode = 'edit'; sel = null; commit(); },
   shuffle(){ ask('Replacer tous les élèves au hasard ?', 'Mélanger', () => { autoPlace(cls(), true); sel = null; commit(); }); },
   clear(){ ask('Retirer tous les élèves du plan ?', 'Vider le plan', () => { cls().seats = {}; sel = null; commit(); }); },
   unplace(){ if (sel && sel.t === 'seat'){ delete cls().seats[sel.k]; sel = null; commit(); } },
+  rot(t){ const f = selFurn(); if (!f) return; f.a = ((f.a + +t.dataset.d) % 360 + 360) % 360; commit(); },
+  dup(){
+    const c = cls(), f = selFurn(); if (!f) return;
+    const g = {...f, id:uid(), num:seating(f) ? Math.max(0, ...c.furn.map(x => x.num)) + 1 : 0};
+    [g.x, g.y] = freeSpot(c, g, [f.x + dims(f).w, f.y]); c.furn.push(g); sel = {t:'furn', id:g.id}; commit();
+  },
+  delFurn(){
+    const c = cls(), f = selFurn(); if (!f) return;
+    const n = cellsOf(f).filter(cl => c.seats[f.id + '.' + cl.i]).length;
+    const go = () => { c.furn = c.furn.filter(x => x !== f); sel = null; commit(); };
+    if (n) ask(`Supprimer ${seating(f) ? 'la table ' + f.num : 'ce meuble'} ? ${n} élève${n > 1 ? 's' : ''} retourner${n > 1 ? 'ont' : 'a'} dans « Élèves sans place ».`, 'Supprimer', go); else go();
+  },
+  add(t){
+    const c = cls(), type = t.dataset.type;
+    const f = {id:uid(), type, x:0, y:0, a:0, num:CAT[type].cols ? Math.max(0, ...c.furn.map(x => x.num)) + 1 : 0};
+    [f.x, f.y] = freeSpot(c, f, [c.room.w / 2, c.room.h / 2]); c.furn.push(f); sel = {t:'furn', id:f.id}; commit();
+  },
+  renum(){
+    const c = cls(); let n = 0;
+    c.furn.filter(seating).sort((p, q) => Math.round(p.y / 40) - Math.round(q.y / 40) || p.x - q.x).forEach(f => { f.num = ++n; });
+    toast('Tables renumérotées de 1 à ' + n + ', depuis le tableau'); commit();
+  },
+  applyTpl(){
+    const c = cls(), n = Math.max(1, Math.min(60, parseInt($('#tplN').value, 10) || c.students.length || 24));
+    ask(`Remplacer l’aménagement actuel par « ${TPL[S.ui.tpl]} » pour ${n} places ? Les élèves seront replacés dans l’ordre de la liste.`, 'Appliquer', () => {
+      const t = template(S.ui.tpl, n); c.room = t.room; c.furn = t.furn; autoPlace(c); sel = null; commit();
+    });
+  },
   delSess(t){ ask('Supprimer cette séance et toutes ses saisies ?', 'Supprimer', () => { const c = cls(); c.sessions = c.sessions.filter(s => s.id !== t.dataset.id); commit(); }); },
   saveStu(){
     const c = cls(), names = $('#stuList').value.split(/\r?\n/).map(n => n.trim()).filter(Boolean);
@@ -428,15 +642,15 @@ const acts = {
   newClass(){
     const names = $('#ncList').value.split(/\r?\n/).map(n => n.split(/[;\t]/)[0].trim()).filter(Boolean);
     if (!names.length) return toast('Ajoutez au moins un élève');
-    const c = makeClass($('#ncName').value.trim() || 'Nouvelle classe', names);
-    S.classes.push(c); S.cur = c.id; S.ui.tab = 'plan'; sel = null;
-    toast('Classe créée : ajustez le plan'); commit();
+    const c = makeClass($('#ncName').value.trim() || 'Nouvelle classe', names, $('#ncTpl').value);
+    S.classes.push(c); S.cur = c.id; S.ui.tab = 'plan'; S.ui.mode = 'edit'; sel = null;
+    toast('Classe créée : ajustez la salle'); commit();
   },
   delClass(){
     const c = cls();
     ask(`Supprimer la classe « ${c.name} », son plan et toutes ses séances ?`, 'Supprimer', () => {
       S.classes = S.classes.filter(x => x.id !== c.id);
-      if (!S.classes.length) S.classes.push(makeClass('Ma classe', []));
+      if (!S.classes.length) S.classes.push(makeClass('Ma classe', [], 'r2'));
       S.cur = S.classes[0].id; commit();
     });
   },
@@ -448,22 +662,22 @@ const acts = {
     const lines = [['classe','date','heure','eleve','place','observable','sens'].map(q).join(';')];
     c.sessions.forEach(s => s.ev.forEach(e => {
       const d = new Date(e.t), o = obsById(e.o);
-      lines.push([c.name, d.toLocaleDateString('fr-FR'), hm(e.t), (stu(c, e.s) || {name:'(retiré)'}).name, seatLabel(e.seat), o ? o.name : e.o, o ? (o.sign > 0 ? '+' : o.sign < 0 ? '-' : '0') : ''].map(q).join(';'));
+      lines.push([c.name, d.toLocaleDateString('fr-FR'), hm(e.t), (stu(c, e.s) || {name:'(retiré)'}).name, seatLabel(c, e.seat), o ? o.name : e.o, o ? (o.sign > 0 ? '+' : o.sign < 0 ? '-' : '0') : ''].map(q).join(';'));
     }));
     if (lines.length < 2) return toast('Aucune saisie à exporter');
     offer(slug(c.name) + '-saisies.csv', '﻿' + lines.join('\r\n'));
   },
-  backup(){ offer('plan-de-classe-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify({app:'plan-classe-obs', v:1, data:S})); },
+  backup(){ offer('plan-de-classe-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify({app:'plan-classe-obs', v:2, data:S})); },
   wipe(){ ask('Effacer toutes les classes, plans et séances de ce navigateur ? Pensez à faire une sauvegarde avant.', 'Tout effacer', () => { S = fresh(); sel = null; commit(); toast('Données effacées'); }); }
 };
 
 document.addEventListener('click', e => {
   if (!$('#modal').hidden) return;
-  const t = e.target.closest('button,[data-act]');
+  const t = e.target.closest('button,[data-act],[data-seat]');
   if (!t) return;
   if (t.dataset.tab){ S.ui.tab = t.dataset.tab; sel = null; return commit(); }
   if (t.dataset.tool){ S.ui.tool = t.dataset.tool; return commit(); }
-  if (t.dataset.seat){ if (S.ui.tab === 'seance') seanceTap(t.dataset.seat); else if (S.ui.tab === 'plan') planTap(t.dataset.seat); return; }
+  if (t.dataset.seat){ if (S.ui.tab === 'seance') seanceTap(t.dataset.seat); else if (S.ui.tab === 'plan' && S.ui.mode !== 'edit') planTap(t.dataset.seat); return; }
   if (t.dataset.pick){ sel = sel && sel.t === 'stu' && sel.id === t.dataset.pick ? null : {t:'stu', id:t.dataset.pick}; return render(); }
   const fn = acts[t.dataset.act]; if (fn) fn(t);
 });
@@ -473,8 +687,12 @@ document.addEventListener('change', e => {
   if (t.id === 'clsSel'){ S.cur = t.value; sel = null; return commit(); }
   if (t.id === 'restore'){ restore(t.files[0]); t.value = ''; return; }
   if (!f) return;
-  if (f === 'rows' || f === 'cols') c[f] = Math.max(1, Math.min(f === 'rows' ? 10 : 12, parseInt(t.value, 10) || 1));
-  else if (f === 'aisle') c.aisle = +t.value;
+  if (f === 'roomW' || f === 'roomH'){
+    const v = Math.round(Math.max(3, Math.min(20, parseFloat(String(t.value).replace(',', '.')) || 8)) * 100);
+    if (f === 'roomW') c.room.w = v; else c.room.h = v;
+    c.furn.forEach(x => { const {w, h} = dims(x), m = Math.min(w, h) / 2; x.x = Math.max(m, Math.min(c.room.w - m, x.x)); x.y = Math.max(m, Math.min(c.room.h - m, x.y)); });
+  }
+  else if (f === 'tpl') S.ui.tpl = t.value;
   else if (f === 'period') S.ui.period = t.value;
   else if (f === 'bObs') S.ui.bObs = t.value;
   else if (f === 'cname') c.name = t.value.trim() || c.name;
@@ -490,12 +708,18 @@ document.addEventListener('change', e => {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !$('#modal').hidden){ $('#modal').hidden = true; return; }
-  if (!$('#modal').hidden || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || S.ui.tab !== 'seance') return;
+  if (!$('#modal').hidden || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  if (S.ui.tab === 'plan' && S.ui.mode === 'edit' && selFurn()){
+    if (e.key === 'r' || e.key === 'R'){ acts.rot({dataset:{d:e.shiftKey ? '-15' : '15'}}); return; }
+    if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); acts.delFurn(); return; }
+  }
+  if (S.ui.tab !== 'seance') return;
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z'){ e.preventDefault(); return acts.undo(); }
   const n = parseInt(e.key, 10);
   if (n >= 1 && n <= S.obs.length){ S.ui.tool = S.obs[n - 1].id; commit(); }
 });
 
+if (migrated){ save(); setTimeout(() => toast('Plan converti en tables : vérifiez-le dans l’onglet Plan'), 400); }
 render();
 }
 </script>

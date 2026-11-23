@@ -14,9 +14,10 @@ Une petite application web pour noter des observables en classe d'un simple touc
 ## Utilisation en classe
 
 1. **Réglages** : créez la classe en collant la liste des élèves (un par ligne).
-2. **Plan** : réglez la disposition et placez les élèves (toucher un élève, puis une place).
-3. **Séance** : choisissez un observable dans la barre, puis touchez les élèves concernés. Le premier toucher démarre la séance. « Annuler la dernière » et la gomme corrigent les erreurs ; le mode discret masque noms et compteurs si l'écran est projeté.
-4. **Bilan** : carte de chaleur, voisins qui cumulent des observables négatifs, détail par élève, export CSV.
+2. **Plan › Aménager la salle** : partez d'un modèle (rangées, îlots de 4 ou 6, U, labo), puis déplacez les meubles en les faisant glisser et faites-les pivoter par crans de 15°. Ajoutez, dupliquez ou supprimez des tables ; un contour rouge signale un chevauchement.
+3. **Plan › Placer les élèves** : touchez un élève, puis une place ; si elle est occupée, les deux élèves échangent.
+4. **Séance** : choisissez un observable dans la barre, puis touchez les élèves concernés. Le premier toucher démarre la séance. « Annuler la dernière » et la gomme corrigent les erreurs ; le mode discret masque noms et compteurs si l'écran est projeté.
+5. **Bilan** : carte de chaleur, voisins qui cumulent des observables négatifs, détail par élève, export CSV.
 
 ## Fichiers
 
@@ -31,8 +32,8 @@ Pour publier une mise à jour : modifier `index.html`, puis incrémenter `VERSIO
 ## Feuille de route
 
 - [x] Version 1 : grille de places, saisie en un toucher, bilan simple, export
-- [ ] Moteur de plan : meubles (tables de 1 ou 2, îlots de 4 ou 6, paillasses), modèles de départ, vue enseignant / vue élève
-- [ ] Éditeur de salle : déplacer et pivoter les meubles par crans de 15°
+- [x] Moteur de plan : meubles (tables de 1, 2 ou 3, îlots de 4 ou 6), modèles de départ, vue enseignant / vue élève, conversion des classes de la version 1
+- [x] Éditeur de salle : déplacer, pivoter par crans de 15°, ajouter, dupliquer, supprimer
 - [ ] Mode classe adaptatif : plein écran, barre d'observables en bas ou sur le côté, sans défilement
 - [ ] Bilan et optimisation : voisins par distance, historique des plans, échanges de places suggérés
 

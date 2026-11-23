@@ -1,6 +1,6 @@
 // Service worker : met l'appli en cache pour qu'elle s'ouvre sans réseau.
 // Incrémenter VERSION à chaque mise à jour de l'appli.
-const VERSION = 'v1.0.0';
+const VERSION = 'v2.0.0';
 const CACHE = 'plan-classe-' + VERSION;
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
