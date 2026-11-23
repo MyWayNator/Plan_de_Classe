@@ -19,6 +19,8 @@ Une petite application web pour noter des observables en classe d'un simple touc
 4. **Séance** : choisissez un observable dans la barre, puis touchez les élèves concernés. Le premier toucher démarre la séance. « Annuler la dernière » et la gomme corrigent les erreurs ; le mode discret masque noms et compteurs si l'écran est projeté.
 5. **Bilan** : carte de chaleur, voisins qui cumulent des observables négatifs, détail par élève, export CSV.
 
+Le bouton **Vue enseignant / Vue élève** fait pivoter l'affichage : en vue enseignant (par défaut), le tableau est en bas, comme vu depuis le bureau.
+
 ## Fichiers
 
 | Fichier | Rôle |
