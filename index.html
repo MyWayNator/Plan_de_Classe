@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1d3b34">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plan de classe">
+<title>Plan de classe observable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE  calme et net : un outil qu'on manie d'une main pendant le cours
+   IDEA   le plan de salle qu'on griffonne au tableau : bande vert tableau, tables comme des pupitres
+   PICTURE le plan lui-même, grand, juste sous la palette d'observables
+   COLOUR/TYPE blanc craie, vert tableau #1d3b34, jaune craie en accent ; Atkinson Hyperlegible, lisible à bout de bras
+   LAYOUT bandeau collant, palette qui défile, plan pleine largeur, réglages en une colonne calme */
+:root{color-scheme:light dark;--bg:light-dark(#f7f6f1,#111614);--ink:light-dark(#18201d,#e8ede9);--mute:light-dark(#56615a,#9aa6a0);--board:#1d3b34;--chalk:#f2c94c;--seat:light-dark(#ffffff,#1b2320);--line:light-dark(#d6d5cb,#2f3a35);--pos:#2b8a3e;--neg:#d9480f;--card:light-dark(#ffffff,#18201d)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'Atkinson Hyperlegible',system-ui,sans-serif;overflow-x:clip}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--chalk);outline-offset:2px}
+.top{background:var(--board);color:#f4f1e6;padding:8px max(3vw,12px);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;position:sticky;top:0;z-index:5}
+.brand{font-weight:700;font-size:18px}
+.top select{background:#2a4d44;border:1px solid #3d6459;border-radius:8px;padding:6px 10px;min-height:44px;color:#f4f1e6;margin-right:auto;max-width:60vw}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tabs button{background:none;border:0;color:#cfd8d3;padding:10px 14px;min-height:44px;border-radius:8px;cursor:pointer}
+.tabs button.on{background:var(--chalk);color:#1d2a25;font-weight:700}
+main{padding:16px max(3vw,12px) 56px;max-width:1240px;margin:0 auto}
+h2{font-size:20px;line-height:1.2;margin:28px 0 10px}
+.warn{background:#fff3bf;color:#4d3a00;border-radius:8px;padding:10px 14px;margin-bottom:12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.status{margin-right:auto;color:var(--mute)}.status b{color:var(--ink)}
+.btn{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center}
+.btn.pri{background:var(--board);color:#fff;border-color:var(--board)}
+.btn.on{outline:3px solid var(--chalk);outline-offset:-1px;font-weight:700}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.danger{color:light-dark(#b02525,#ff8787)}
+.btn.small{min-height:40px;padding:6px 10px;font-size:14px}
+.pal{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:thin}
+.tool{flex:none;display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:6px 14px 6px 6px;min-height:54px;cursor:pointer;font-weight:700}
+.tool .lt{display:grid;place-items:center;min-width:38px;height:38px;padding:0 4px;border-radius:8px;background:var(--c,#666);color:#fff;font-size:17px}
+.tool.on{border-color:var(--c,var(--ink));box-shadow:0 0 0 3px color-mix(in srgb,var(--c,var(--ink)) 35%,transparent)}
+.erase .lt{background:var(--mute)}
+.room{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.board{background:var(--board);color:#e9efe9;text-align:center;border-radius:6px;padding:5px;font-size:14px;margin:0 15% 14px}
+.grid{display:grid;gap:8px}
+.seat{min-height:70px;border:1.5px solid var(--line);background:var(--seat);border-radius:10px;padding:6px;text-align:left;vertical-align:top;cursor:pointer;overflow:hidden;font-size:15px;font-weight:700;line-height:1.2;overflow-wrap:anywhere;display:flex;flex-direction:column;justify-content:flex-start}
+.seat.empty{background:transparent;border-style:dashed;color:var(--mute);font-weight:400}
+.seat.blk{background:repeating-linear-gradient(45deg,transparent 0 6px,var(--line) 6px 8px);border-style:dashed}
+.seat.sel{outline:3px solid var(--chalk);outline-offset:1px;border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:3px;margin-top:auto;padding-top:4px}
+.chips i{font-style:normal;font-size:13px;line-height:18px;padding:0 5px;border-radius:4px;background:var(--c);color:#fff;font-weight:700}
+.seat .n{margin-top:auto;text-align:right;font-size:15px;font-variant-numeric:tabular-nums}
+.free{font-size:13px}
+.flash{animation:fl .6s ease-out}
+@keyframes fl{from{box-shadow:0 0 0 7px var(--c);transform:scale(1.05)}to{box-shadow:0 0 0 0 transparent;transform:none}}
+@media(prefers-reduced-motion:reduce){.flash{animation:none}#toast{transition:none}}
+.hint{color:var(--mute);font-size:14px;margin:10px 0 0}
+.fld{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:15px}
+.fld.col{flex-direction:column;align-items:stretch;gap:4px;margin-bottom:12px}
+input,select,textarea{background:var(--seat);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:44px;font-size:16px;color:var(--ink)}
+input[type=number]{width:5em}
+textarea{width:100%;resize:vertical}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.unpl{display:flex;flex-wrap:wrap;gap:8px;min-height:64px;padding:10px;border:1.5px dashed var(--line);border-radius:12px;cursor:pointer}
+.pick{background:var(--seat);border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;min-height:44px;font-weight:700;cursor:pointer}
+.pick.sel{outline:3px solid var(--chalk);border-color:var(--ink)}
+.count{font-size:15px;color:var(--mute);font-weight:400}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.two h2{margin-top:0}
+@media(max-width:900px){.two{grid-template-columns:minmax(0,1fr)}.two h2{margin-top:12px}}
+.pairs{margin:0;padding-left:22px}.pairs li{margin-bottom:10px}.pairs span{display:block;color:var(--mute);font-size:14px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-size:14px;color:var(--mute);font-weight:700}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 18px 18px;margin-bottom:16px;max-width:760px}
+.orow{display:grid;grid-template-columns:56px 60px minmax(0,1fr) 124px auto;gap:8px;align-items:center;margin-bottom:8px}
+.orow input[type=color]{padding:4px;width:56px}
+.orow .lt{text-align:center;font-weight:700;width:60px}
+#modal{position:fixed;inset:0;background:rgb(0 0 0/.45);display:grid;place-items:center;z-index:20;padding:16px}
+#modal[hidden]{display:none}
+#modal .box{background:var(--card);border-radius:14px;padding:20px;max-width:520px;width:100%}
+#mText{margin:0 0 8px}
+#mArea{height:180px;font-size:13px;margin-top:8px}
+#mBtns{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,16px);background:var(--board);color:#fff;padding:10px 18px;border-radius:999px;opacity:0;transition:.2s;pointer-events:none;z-index:30;max-width:90vw}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:600px){
+ .seat{font-size:13px;min-height:58px;padding:4px}.grid{gap:5px}.room{padding:8px}
+ .tabs button{padding:8px 9px}.brand{font-size:16px}.board{margin:0 5% 10px}
+ .chips i{font-size:13px;padding:0 3px}
+ .orow{grid-template-columns:52px 56px minmax(0,1fr)}.orow select{grid-column:1/3}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand">Plan de classe</span>
+  <select id="clsSel" aria-label="Classe"></select>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="seance">Séance</button>
+    <button role="tab" data-tab="plan">Plan</button>
+    <button role="tab" data-tab="bilan">Bilan</button>
+    <button role="tab" data-tab="reglages">Réglages</button>
+  </nav>
+</header>
+<main id="view"></main>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="modal" hidden role="dialog" aria-modal="true"><div class="box"><p id="mText"></p><textarea id="mArea" readonly hidden></textarea><div id="mBtns"></div></div></div>
+<script>
+{
+const KEY = 'plan-classe-obs-v1';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const DEF_OBS = [
+  {id:'part', name:'Participation', letter:'P', color:'#1c7c54', sign:1},
+  {id:'aide', name:'Aide un camarade', letter:'A', color:'#2f6fb5', sign:1},
+  {id:'trav', name:'Au travail', letter:'T', color:'#5c7f1e', sign:1},
+  {id:'bav', name:'Bavardage', letter:'B', color:'#d9480f', sign:-1},
+  {id:'hors', name:'Hors tâche', letter:'H', color:'#a61e8a', sign:-1},
+  {id:'agit', name:'Agitation', letter:'G', color:'#c92a2a', sign:-1}
+];
+const NAMES = ['Adam','Inès','Lucas','Chloé','Nathan','Léa','Hugo','Jade','Mathis','Lina','Théo','Manon','Enzo','Zoé','Noah','Camille','Rayan','Emma','Louis','Sarah','Yanis','Lou','Gabriel','Maëlys','Tom','Nour'];
+const UI = {tab:'seance', tool:'bav', discret:false, period:'cur', bObs:'bav', mode:'place'};
+
+function seatKeys(c){ const k = []; for (let r = 0; r < c.rows; r++) for (let j = 0; j < c.cols; j++) k.push(r + '-' + j); return k; }
+function autoPlace(c, shuffle){
+  const free = seatKeys(c).filter(k => !c.blocked.includes(k));
+  const list = [...c.students];
+  if (shuffle) for (let i = list.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+  c.seats = {};
+  list.slice(0, free.length).forEach((s, i) => { c.seats[free.at(i)] = s.id; });
+}
+function makeClass(name, names){
+  const students = names.map(n => ({id:uid(), name:n}));
+  const cols = students.length > 48 ? 8 : 6;
+  const c = {id:uid(), name, students, rows:Math.min(10, Math.max(4, Math.ceil(students.length / cols))), cols, aisle:2, blocked:[], seats:{}, sessions:[]};
+  autoPlace(c);
+  return c;
+}
+function keyOf(c, sid){ return Object.keys(c.seats).find(k => c.seats[k] === sid) || ''; }
+function sample(){
+  const c = makeClass('5e B (exemple)', NAMES);
+  const t0 = Date.now() - 2 * 864e5;
+  const plan = [[2,'bav'],[3,'bav'],[0,'part'],[2,'bav'],[7,'part'],[3,'bav'],[12,'hors'],[15,'aide'],[20,'bav'],[21,'bav'],[2,'bav'],[9,'part'],[12,'agit'],[3,'bav'],[18,'trav'],[5,'part']];
+  c.sessions.push({id:uid(), start:t0, end:t0 + 3300000, seats:{...c.seats}, ev:plan.map(([i, o], n) => { const s = c.students.at(i).id; return {s, seat:keyOf(c, s), o, t:t0 + n * 180000}; })});
+  return c;
+}
+function fresh(){ const c = sample(); return {classes:[c], obs:DEF_OBS.map(o => ({...o})), cur:c.id, ui:{...UI}}; }
+
+let S = null, storeOK = true, sel = null, flashK = null, flashC = '', toastT = 0;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { storeOK = false; }
+if (!S || !Array.isArray(S.classes) || !S.classes.length || !Array.isArray(S.obs)) S = fresh();
+S.ui = Object.assign({...UI}, S.ui || {});
+
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); storeOK = true; } catch (e) { storeOK = false; } }
+function cls(){ return S.classes.find(c => c.id === S.cur) || S.classes[0]; }
+function stu(c, id){ return id ? c.students.find(s => s.id === id) : null; }
+function obsById(id){ return S.obs.find(o => o.id === id); }
+function live(c){ const s = c.sessions.at(-1); return s && !s.end ? s : null; }
+function hm(t){ return new Date(t).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}); }
+function dt(t){ return new Date(t).toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'short'}) + ' · ' + hm(t); }
+function ini(n){ return n.trim().split(/\s+/).map(w => w.charAt(0)).join('').toUpperCase(); }
+function seatLabel(k){ const [r, j] = k.split('-').map(Number); return k ? `rang ${r + 1}, place ${j + 1}` : ''; }
+function slug(n){ return n.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'classe'; }
+function commit(){ save(); render(); }
+function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
+
+S.classes.forEach(c => { const L = live(c); if (L){ const last = L.ev.length ? L.ev.at(-1).t : L.start; if (Date.now() - last > 3 * 3600e3) L.end = last; } });
+
+function cleanSeats(c){
+  Object.keys(c.seats).forEach(k => {
+    const [r, j] = k.split('-').map(Number);
+    if (r >= c.rows || j >= c.cols || c.blocked.includes(k) || !stu(c, c.seats[k])) delete c.seats[k];
+  });
+}
+
+function grid(c, cell){
+  const a = +c.aisle || 0, tr = [];
+  for (let j = 0; j < c.cols; j++){ if (a && j && j % a === 0) tr.push('12px'); tr.push('minmax(0,1fr)'); }
+  let h = '';
+  for (let r = 0; r < c.rows; r++) for (let j = 0; j < c.cols; j++){
+    const k = r + '-' + j, o = cell(k);
+    h += `<button class="seat ${o.cls || ''}" data-seat="${k}" style="grid-row:${r + 1};grid-column:${j + (a ? Math.floor(j / a) : 0) + 1};${o.style || ''}"${o.label ? ` aria-label="${esc(o.label)}"` : ''}>${o.html || ''}</button>`;
+  }
+  return `<div class="room"><div class="board">Tableau</div><div class="grid" style="grid-template-columns:${tr.join(' ')}">${h}</div></div>`;
+}
+
+function counts(sessions){
+  const cnt = {};
+  sessions.forEach(s => s.ev.forEach(e => { const m = cnt[e.s] || (cnt[e.s] = {}); m[e.o] = (m[e.o] || 0) + 1; }));
+  return cnt;
+}
+
+function vSeance(c){
+  const L = live(c), ev = L ? L.ev : [], d = S.ui.discret, cnt = counts(L ? [L] : []);
+  if (S.ui.tool !== 'erase' && !obsById(S.ui.tool)) S.ui.tool = S.obs.length ? S.obs[0].id : 'erase';
+  const pal = S.obs.map((o, i) => `<button class="tool ${S.ui.tool === o.id ? 'on' : ''}" data-tool="${o.id}" style="--c:${esc(o.color)}" aria-pressed="${S.ui.tool === o.id}" title="Raccourci clavier : ${i + 1}"><span class="lt">${esc(o.letter)}</span>${esc(o.name)}</button>`).join('')
+    + `<button class="tool erase ${S.ui.tool === 'erase' ? 'on' : ''}" data-tool="erase" aria-pressed="${S.ui.tool === 'erase'}"><span class="lt">−1</span>Gomme</button>`;
+  const st = L ? `Séance en cours depuis <b>${hm(L.start)}</b> · ${ev.length} saisie${ev.length > 1 ? 's' : ''}` : 'Pas de séance en cours : le premier toucher la démarre';
+  const g = grid(c, k => {
+    if (c.blocked.includes(k)) return {cls:'blk', label:'Place condamnée'};
+    const s = stu(c, c.seats[k]);
+    if (!s) return {cls:'empty', label:'Place libre'};
+    const m = cnt[s.id] || {};
+    const chips = d ? '' : S.obs.filter(o => m[o.id]).map(o => `<i style="--c:${esc(o.color)}">${esc(o.letter)}${m[o.id] > 1 ? m[o.id] : ''}</i>`).join('');
+    return {html:`<span>${esc(d ? ini(s.name) : s.name)}</span><span class="chips">${chips}</span>`, label:s.name};
+  });
+  return `<div class="bar"><span class="status">${st}</span>
+    <button class="btn" data-act="undo" ${ev.length ? '' : 'disabled'}>Annuler la dernière</button>
+    <button class="btn ${d ? 'on' : ''}" data-act="discret" aria-pressed="${d}">Mode discret</button>
+    ${L ? '<button class="btn pri" data-act="end">Terminer la séance</button>' : ''}</div>
+    <div class="pal" role="toolbar" aria-label="Observables">${pal}</div>${g}
+    <p class="hint">Choisissez un observable, puis touchez les élèves : il reste sélectionné. La gomme retire la dernière saisie d’un élève. Au clavier : touches 1 à ${S.obs.length}, Ctrl+Z pour annuler.</p>
+    ${c.name.includes('(exemple)') ? '<p class="hint">Classe d’exemple avec des prénoms fictifs : créez la vôtre dans Réglages.</p>' : ''}`;
+}
+
+function vPlan(c){
+  const placed = new Set(Object.values(c.seats)), un = c.students.filter(s => !placed.has(s.id)), m = S.ui.mode;
+  const g = grid(c, k => {
+    const b = c.blocked.includes(k), s = stu(c, c.seats[k]), isSel = sel && sel.t === 'seat' && sel.k === k;
+    return {cls:(b ? 'blk' : s ? '' : 'empty') + (isSel ? ' sel' : ''), html:b ? '' : s ? esc(s.name) : '<span class="free">libre</span>', label:b ? 'Place condamnée' : s ? s.name : 'Place libre'};
+  });
+  const help = m === 'block' ? 'Touchez une place pour la condamner ou la rouvrir.'
+    : !sel ? 'Touchez un élève (sur le plan ou dans la liste), puis la place voulue. Si elle est occupée, les deux élèves échangent leur place.'
+    : sel.t === 'seat' ? 'Touchez une autre place pour déplacer ou échanger, ou la zone « Élèves sans place » pour retirer cet élève du plan.'
+    : 'Touchez une place pour y installer cet élève.';
+  return `${live(c) ? '<div class="warn">Une séance est en cours : les changements de place valent pour les saisies suivantes.</div>' : ''}
+    <div class="bar">
+      <label class="fld">Rangées <input type="number" min="1" max="10" value="${c.rows}" data-f="rows"></label>
+      <label class="fld">Colonnes <input type="number" min="1" max="12" value="${c.cols}" data-f="cols"></label>
+      <label class="fld">Allée <select data-f="aisle">${[0,1,2,3,4].map(v => `<option value="${v}" ${+c.aisle === v ? 'selected' : ''}>${v ? 'toutes les ' + v + ' col.' : 'aucune'}</option>`).join('')}</select></label>
+    </div>
+    <div class="bar"><div class="seg" role="group" aria-label="Mode">
+      <button class="btn ${m === 'place' ? 'on' : ''}" data-act="modePlace" aria-pressed="${m === 'place'}">Placer les élèves</button>
+      <button class="btn ${m === 'block' ? 'on' : ''}" data-act="modeBlock" aria-pressed="${m === 'block'}">Condamner des places</button></div>
+      <span class="status"></span>
+      <button class="btn" data-act="shuffle">Placement aléatoire</button>
+      <button class="btn" data-act="clear">Vider le plan</button></div>
+    ${g}<p class="hint">${help}</p>
+    <h2>Élèves sans place <span class="count">${un.length}</span></h2>
+    <div class="unpl" data-act="unplace">${un.map(s => `<button class="pick ${sel && sel.t === 'stu' && sel.id === s.id ? 'sel' : ''}" data-pick="${s.id}">${esc(s.name)}</button>`).join('') || '<span class="hint">Tous les élèves sont placés.</span>'}</div>`;
+}
+
+function vBilan(c){
+  const p = S.ui.period, pick = p === 'cur' ? c.sessions.slice(-1) : p === 'l4' ? c.sessions.slice(-4) : c.sessions;
+  const cnt = counts(pick), total = pick.reduce((t, s) => t + s.ev.length, 0);
+  const bo = S.ui.bObs === 'solde' ? null : obsById(S.ui.bObs) || null;
+  const val = id => { const m = cnt[id] || {}; return bo ? (m[bo.id] || 0) : S.obs.reduce((t, o) => t + (m[o.id] || 0) * o.sign, 0); };
+  const max = Math.max(1, ...c.students.map(s => Math.abs(val(s.id))));
+  const g = grid(c, k => {
+    if (c.blocked.includes(k)) return {cls:'blk', label:'Place condamnée'};
+    const s = stu(c, c.seats[k]);
+    if (!s) return {cls:'empty', label:'Place libre'};
+    const v = val(s.id), col = bo ? esc(bo.color) : (v >= 0 ? 'var(--pos)' : 'var(--neg)');
+    return {style:v ? `background:color-mix(in srgb,${col} ${Math.round(12 + Math.abs(v) / max * 48)}%,var(--seat))` : '',
+      html:`<span>${esc(s.name)}</span><span class="n">${v > 0 && !bo ? '+' : ''}${v || ''}</span>`, label:`${s.name} : ${v}`};
+  });
+  const neg = bo && bo.sign < 0 ? [bo] : S.obs.filter(o => o.sign < 0);
+  const nv = id => { const m = cnt[id] || {}; return neg.reduce((t, o) => t + (m[o.id] || 0), 0); };
+  const a = +c.aisle || 0, pairs = [];
+  for (let r = 0; r < c.rows; r++) for (let j = 0; j < c.cols; j++){
+    const x = c.seats[r + '-' + j]; if (!x) continue;
+    const nb = [];
+    if (j + 1 < c.cols && !(a && (j + 1) % a === 0)) nb.push([r + '-' + (j + 1), 'voisins de table']);
+    if (r + 1 < c.rows) nb.push([(r + 1) + '-' + j, 'l’un derrière l’autre']);
+    nb.forEach(([k2, rel]) => { const y = c.seats[k2]; if (!y) return; const va = nv(x), vb = nv(y); if (va && vb) pairs.push({x, y, va, vb, rel, sc:Math.min(va, vb)}); });
+  }
+  pairs.sort((u, w) => w.sc - u.sc || (w.va + w.vb) - (u.va + u.vb));
+  const negLabel = neg.length === 1 ? neg[0].name.toLowerCase() : 'observables négatifs';
+  const nm = id => (stu(c, id) || {name:'?'}).name;
+  const pl = pairs.length ? `<ol class="pairs">${pairs.slice(0, 6).map(q => `<li><b>${esc(nm(q.x))} et ${esc(nm(q.y))}</b><span>${q.rel} · ${q.va} et ${q.vb} (${esc(negLabel)})</span></li>`).join('')}</ol>` : '<p class="hint">Aucun binôme ne ressort sur cette période.</p>';
+  const rows = [...c.students].sort((u, w) => u.name.localeCompare(w.name, 'fr')).map(s => {
+    const m = cnt[s.id] || {}, sol = S.obs.reduce((t, o) => t + (m[o.id] || 0) * o.sign, 0);
+    return `<tr><td>${esc(s.name)}</td>${S.obs.map(o => `<td class="num">${m[o.id] || ''}</td>`).join('')}<td class="num"><b>${sol > 0 ? '+' : ''}${sol}</b></td></tr>`;
+  }).join('');
+  const sl = [...c.sessions].reverse().map(s => `<tr><td>${dt(s.start)}</td><td class="num">${s.end ? Math.max(1, Math.round((s.end - s.start) / 60000)) + ' min' : 'en cours'}</td><td class="num">${s.ev.length}</td><td><button class="btn small danger" data-act="delSess" data-id="${s.id}">Supprimer</button></td></tr>`).join('');
+  const per = [['cur','Dernière séance'],['l4','4 dernières séances'],['all','Toutes les séances']];
+  return `<div class="bar">
+      <label class="fld">Période <select data-f="period">${per.map(([v, l]) => `<option value="${v}" ${p === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label class="fld">Afficher <select data-f="bObs"><option value="solde" ${!bo ? 'selected' : ''}>Solde (positifs − négatifs)</option>${S.obs.map(o => `<option value="${o.id}" ${bo && bo.id === o.id ? 'selected' : ''}>${esc(o.name)}</option>`).join('')}</select></label>
+      <span class="status">${pick.length} séance${pick.length > 1 ? 's' : ''} · ${total} saisie${total > 1 ? 's' : ''}</span></div>
+    ${pick.length ? '' : '<div class="warn">Aucune séance enregistrée pour cette classe : lancez-en une depuis l’onglet Séance.</div>'}
+    <div class="two"><div>${g}</div><aside><h2>Voisins qui cumulent</h2>${pl}<p class="hint">Calculé d’après le plan actuel, sur la période choisie. C’est une piste pour séparer un binôme, pas un verdict.</p></aside></div>
+    <h2>Par élève</h2><div class="scroll"><table><thead><tr><th>Élève</th>${S.obs.map(o => `<th class="num" title="${esc(o.name)}">${esc(o.name)}</th>`).join('')}<th class="num">Solde</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <h2>Séances</h2>${sl ? `<div class="scroll"><table><thead><tr><th>Début</th><th class="num">Durée</th><th class="num">Saisies</th><th></th></tr></thead><tbody>${sl}</tbody></table></div>` : '<p class="hint">Aucune séance.</p>'}`;
+}
+
+function vReglages(c){
+  return `<section class="card"><h2>Classe « ${esc(c.name)} »</h2>
+      <label class="fld col">Nom de la classe <input value="${esc(c.name)}" data-f="cname"></label>
+      <label class="fld col">Élèves, un par ligne <textarea rows="8" id="stuList">${esc(c.students.map(s => s.name).join('\n'))}</textarea></label>
+      <div class="bar"><button class="btn pri" data-act="saveStu">Mettre à jour la liste</button><button class="btn danger" data-act="delClass">Supprimer cette classe</button></div></section>
+    <section class="card"><h2>Nouvelle classe</h2>
+      <label class="fld col">Nom <input id="ncName" placeholder="Ex. 4e A"></label>
+      <label class="fld col">Élèves, un par ligne (collez depuis un tableur ou Pronote) <textarea rows="6" id="ncList"></textarea></label>
+      <button class="btn pri" data-act="newClass">Créer la classe</button></section>
+    <section class="card"><h2>Observables</h2><p class="hint">8 au maximum. La lettre s’affiche sur le plan ; le sens compte dans le solde du bilan.</p>
+      ${S.obs.map((o, i) => `<div class="orow" data-i="${i}"><input type="color" value="${esc(o.color)}" data-f="ocolor" aria-label="Couleur de ${esc(o.name)}"><input class="lt" maxlength="2" value="${esc(o.letter)}" data-f="oletter" aria-label="Lettre de ${esc(o.name)}"><input value="${esc(o.name)}" data-f="oname" aria-label="Nom de l’observable"><select data-f="osign" aria-label="Sens de ${esc(o.name)}"><option value="1" ${o.sign > 0 ? 'selected' : ''}>positif</option><option value="-1" ${o.sign < 0 ? 'selected' : ''}>négatif</option><option value="0" ${o.sign === 0 ? 'selected' : ''}>neutre</option></select><button class="btn small" data-act="delObs" data-i="${i}">Retirer</button></div>`).join('')}
+      <div class="bar"><button class="btn" data-act="addObs" ${S.obs.length >= 8 ? 'disabled' : ''}>Ajouter un observable</button><button class="btn" data-act="resetObs">Revenir à la liste par défaut</button></div></section>
+    <section class="card"><h2>Données</h2><p>Tout reste dans ce navigateur, sur cet appareil : rien n’est envoyé ailleurs. Faites une sauvegarde régulièrement, et avant de changer d’appareil.</p>
+      <div class="bar"><button class="btn" data-act="csv">Exporter les saisies de la classe (CSV)</button><button class="btn" data-act="backup">Sauvegarde complète (JSON)</button>
+      <label class="btn">Restaurer une sauvegarde<input type="file" accept=".json,application/json" id="restore" hidden></label>
+      <button class="btn danger" data-act="wipe">Tout effacer</button></div></section>`;
+}
+
+function render(){
+  const c = cls();
+  cleanSeats(c);
+  $('#clsSel').innerHTML = S.classes.map(x => `<option value="${x.id}" ${x.id === c.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
+  document.querySelectorAll('[data-tab]').forEach(b => { const on = b.dataset.tab === S.ui.tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+  const w = storeOK ? '' : '<div class="warn">Ce navigateur refuse l’enregistrement : les saisies seront perdues à la fermeture. Faites une sauvegarde (Réglages, Données) ou ouvrez la page dans un autre navigateur.</div>';
+  const v = {seance:vSeance, plan:vPlan, bilan:vBilan, reglages:vReglages}[S.ui.tab] || vSeance;
+  $('#view').innerHTML = w + v(c);
+  if (flashK){ const el = document.querySelector(`[data-seat="${flashK}"]`); if (el){ el.style.setProperty('--c', flashC); el.classList.add('flash'); } flashK = null; }
+}
+
+function modal(text, btns, area){
+  const m = $('#modal'), ta = $('#mArea'), bx = $('#mBtns');
+  $('#mText').textContent = text;
+  ta.hidden = area == null; if (area != null) ta.value = area;
+  bx.innerHTML = '';
+  btns.forEach(([label, fn, cl]) => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (cl || ''); b.textContent = label;
+    b.addEventListener('click', ev => { ev.stopPropagation(); const keep = fn ? fn() : false; if (!keep) m.hidden = true; });
+    bx.appendChild(b);
+  });
+  m.hidden = false; bx.lastChild.focus();
+}
+function ask(text, ok, fn){ modal(text, [['Annuler'], [ok, fn, 'pri']]); }
+
+async function offer(filename, text){
+  try {
+    const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+    if (dl){ await dl.save({filename, data:text}); toast('Fichier enregistré'); return; }
+  } catch (e) { if (e && e.code === 'declined'){ toast('Enregistrement annulé'); return; } }
+  if (!window.claude){
+    try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text])); a.download = filename; document.body.appendChild(a); a.click(); a.remove(); return; } catch (e) {}
+  }
+  modal(`Le téléchargement n’est pas possible ici. Copiez ce contenu et collez-le dans un fichier nommé ${filename}.`, [
+    ['Copier', () => { const ta = $('#mArea'); navigator.clipboard.writeText(ta.value).then(() => toast('Copié'), () => { ta.select(); toast('Texte sélectionné : copiez-le avec Ctrl+C'); }); return true; }],
+    ['Fermer', null, 'pri']], text);
+}
+
+function seanceTap(k){
+  const c = cls(), sid = c.seats[k], s = stu(c, sid);
+  if (!s) return;
+  let L = live(c);
+  if (S.ui.tool === 'erase'){
+    if (!L) return toast('Aucune séance en cours');
+    const i = L.ev.map(e => e.s).lastIndexOf(sid);
+    if (i < 0) return toast('Rien à retirer pour ' + s.name);
+    const e = L.ev.splice(i, 1)[0];
+    toast('Retiré : ' + ((obsById(e.o) || {}).name || '') + ' · ' + s.name);
+    return commit();
+  }
+  const o = obsById(S.ui.tool);
+  if (!o) return toast('Choisissez d’abord un observable');
+  if (!L){ L = {id:uid(), start:Date.now(), end:null, seats:{...c.seats}, ev:[]}; c.sessions.push(L); toast('Séance démarrée'); }
+  L.ev.push({s:sid, seat:k, o:o.id, t:Date.now()});
+  flashK = k; flashC = o.color;
+  try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
+  commit();
+}
+
+function planTap(k){
+  const c = cls();
+  if (S.ui.mode === 'block'){
+    const i = c.blocked.indexOf(k);
+    if (i >= 0) c.blocked.splice(i, 1); else { c.blocked.push(k); delete c.seats[k]; }
+    sel = null; return commit();
+  }
+  if (c.blocked.includes(k)) return;
+  const here = c.seats[k];
+  if (!sel){ if (here) sel = {t:'seat', k}; return render(); }
+  if (sel.t === 'stu'){ c.seats[k] = sel.id; }
+  else {
+    if (sel.k === k){ sel = null; return render(); }
+    const moving = c.seats[sel.k];
+    if (here) c.seats[sel.k] = here; else delete c.seats[sel.k];
+    c.seats[k] = moving;
+  }
+  sel = null; commit();
+}
+
+function restore(file){
+  if (!file) return;
+  file.text().then(txt => {
+    let d = null;
+    try { const j = JSON.parse(txt); d = j && j.data ? j.data : j; } catch (e) {}
+    if (!d || !Array.isArray(d.classes) || !d.classes.length || !Array.isArray(d.obs)) return toast('Ce fichier n’est pas une sauvegarde valide');
+    ask(`Remplacer toutes les données de ce navigateur par cette sauvegarde (${d.classes.length} classe${d.classes.length > 1 ? 's' : ''}) ?`, 'Restaurer', () => {
+      S = d; S.ui = Object.assign({...UI}, S.ui || {}); if (!cls()) S.cur = S.classes[0].id;
+      sel = null; commit(); toast('Sauvegarde restaurée');
+    });
+  });
+}
+
+const acts = {
+  undo(){ const c = cls(), L = live(c); if (!L || !L.ev.length) return; const e = L.ev.pop(); toast('Annulé : ' + ((obsById(e.o) || {}).name || '') + ' · ' + ((stu(c, e.s) || {}).name || '')); commit(); },
+  discret(){ S.ui.discret = !S.ui.discret; commit(); },
+  end(){ const c = cls(), L = live(c); if (!L) return; L.end = Date.now(); if (!L.ev.length) c.sessions.pop(); toast('Séance terminée · ' + L.ev.length + ' saisie' + (L.ev.length > 1 ? 's' : '')); commit(); },
+  modePlace(){ S.ui.mode = 'place'; sel = null; commit(); },
+  modeBlock(){ S.ui.mode = 'block'; sel = null; commit(); },
+  shuffle(){ ask('Replacer tous les élèves au hasard ?', 'Mélanger', () => { autoPlace(cls(), true); sel = null; commit(); }); },
+  clear(){ ask('Retirer tous les élèves du plan ?', 'Vider le plan', () => { cls().seats = {}; sel = null; commit(); }); },
+  unplace(){ if (sel && sel.t === 'seat'){ delete cls().seats[sel.k]; sel = null; commit(); } },
+  delSess(t){ ask('Supprimer cette séance et toutes ses saisies ?', 'Supprimer', () => { const c = cls(); c.sessions = c.sessions.filter(s => s.id !== t.dataset.id); commit(); }); },
+  saveStu(){
+    const c = cls(), names = $('#stuList').value.split(/\r?\n/).map(n => n.trim()).filter(Boolean);
+    if (!names.length) return toast('La liste est vide');
+    const pool = [...c.students];
+    c.students = names.map(n => { const i = pool.findIndex(s => s.name === n); return i >= 0 ? pool.splice(i, 1)[0] : {id:uid(), name:n}; });
+    cleanSeats(c);
+    const un = c.students.length - Object.keys(c.seats).length;
+    toast(`Liste mise à jour : ${c.students.length} élèves` + (un ? `, ${un} sans place` : ''));
+    commit();
+  },
+  newClass(){
+    const names = $('#ncList').value.split(/\r?\n/).map(n => n.split(/[;\t]/)[0].trim()).filter(Boolean);
+    if (!names.length) return toast('Ajoutez au moins un élève');
+    const c = makeClass($('#ncName').value.trim() || 'Nouvelle classe', names);
+    S.classes.push(c); S.cur = c.id; S.ui.tab = 'plan'; sel = null;
+    toast('Classe créée : ajustez le plan'); commit();
+  },
+  delClass(){
+    const c = cls();
+    ask(`Supprimer la classe « ${c.name} », son plan et toutes ses séances ?`, 'Supprimer', () => {
+      S.classes = S.classes.filter(x => x.id !== c.id);
+      if (!S.classes.length) S.classes.push(makeClass('Ma classe', []));
+      S.cur = S.classes[0].id; commit();
+    });
+  },
+  addObs(){ if (S.obs.length >= 8) return; S.obs.push({id:uid(), name:'Nouvel observable', letter:'N', color:'#495057', sign:-1}); commit(); },
+  delObs(t){ const i = +t.dataset.i, o = S.obs[i]; ask(`Retirer « ${o.name} » ? Les saisies déjà faites restent dans l’export CSV.`, 'Retirer', () => { S.obs.splice(i, 1); commit(); }); },
+  resetObs(){ ask('Revenir aux 6 observables par défaut ?', 'Rétablir', () => { S.obs = DEF_OBS.map(o => ({...o})); commit(); }); },
+  csv(){
+    const c = cls(), q = v => `"${String(v).replace(/"/g, '""')}"`;
+    const lines = [['classe','date','heure','eleve','place','observable','sens'].map(q).join(';')];
+    c.sessions.forEach(s => s.ev.forEach(e => {
+      const d = new Date(e.t), o = obsById(e.o);
+      lines.push([c.name, d.toLocaleDateString('fr-FR'), hm(e.t), (stu(c, e.s) || {name:'(retiré)'}).name, seatLabel(e.seat), o ? o.name : e.o, o ? (o.sign > 0 ? '+' : o.sign < 0 ? '-' : '0') : ''].map(q).join(';'));
+    }));
+    if (lines.length < 2) return toast('Aucune saisie à exporter');
+    offer(slug(c.name) + '-saisies.csv', '﻿' + lines.join('\r\n'));
+  },
+  backup(){ offer('plan-de-classe-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify({app:'plan-classe-obs', v:1, data:S})); },
+  wipe(){ ask('Effacer toutes les classes, plans et séances de ce navigateur ? Pensez à faire une sauvegarde avant.', 'Tout effacer', () => { S = fresh(); sel = null; commit(); toast('Données effacées'); }); }
+};
+
+document.addEventListener('click', e => {
+  if (!$('#modal').hidden) return;
+  const t = e.target.closest('button,[data-act]');
+  if (!t) return;
+  if (t.dataset.tab){ S.ui.tab = t.dataset.tab; sel = null; return commit(); }
+  if (t.dataset.tool){ S.ui.tool = t.dataset.tool; return commit(); }
+  if (t.dataset.seat){ if (S.ui.tab === 'seance') seanceTap(t.dataset.seat); else if (S.ui.tab === 'plan') planTap(t.dataset.seat); return; }
+  if (t.dataset.pick){ sel = sel && sel.t === 'stu' && sel.id === t.dataset.pick ? null : {t:'stu', id:t.dataset.pick}; return render(); }
+  const fn = acts[t.dataset.act]; if (fn) fn(t);
+});
+
+document.addEventListener('change', e => {
+  const t = e.target, f = t.dataset.f, c = cls();
+  if (t.id === 'clsSel'){ S.cur = t.value; sel = null; return commit(); }
+  if (t.id === 'restore'){ restore(t.files[0]); t.value = ''; return; }
+  if (!f) return;
+  if (f === 'rows' || f === 'cols') c[f] = Math.max(1, Math.min(f === 'rows' ? 10 : 12, parseInt(t.value, 10) || 1));
+  else if (f === 'aisle') c.aisle = +t.value;
+  else if (f === 'period') S.ui.period = t.value;
+  else if (f === 'bObs') S.ui.bObs = t.value;
+  else if (f === 'cname') c.name = t.value.trim() || c.name;
+  else if (t.closest('.orow')){
+    const o = S.obs[+t.closest('.orow').dataset.i]; if (!o) return;
+    if (f === 'ocolor') o.color = t.value;
+    if (f === 'oletter') o.letter = t.value.trim().slice(0, 2) || o.name.charAt(0);
+    if (f === 'oname') o.name = t.value.trim() || o.name;
+    if (f === 'osign') o.sign = +t.value;
+  }
+  commit();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#modal').hidden){ $('#modal').hidden = true; return; }
+  if (!$('#modal').hidden || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || S.ui.tab !== 'seance') return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z'){ e.preventDefault(); return acts.undo(); }
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= S.obs.length){ S.ui.tool = S.obs[n - 1].id; commit(); }
+});
+
+render();
+}
+</script>
+<script>
+// Hors ligne : active le cache quand l'appli est servie en https (GitHub Pages).
+try { if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.claude) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+</script>
+</body>
+</html>
